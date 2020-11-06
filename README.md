@@ -8,27 +8,34 @@
 
 ## Introduction
 
-TODO Describe what your plugin does here
+Offers alternative types of file parameter that are compatible with Pipeline and do not suffer from the architectural flaws of the type built into Jenkins core.
+
+See [JENKINS-27413](https://issues.jenkins-ci.org/browse/JENKINS-27413) and [JENKINS-29289](https://issues.jenkins-ci.org/browse/JENKINS-29289) for background.
+
+## Implementation status
+
+- [X] Base64 file parameter (simple and suitable for small files)
+- [X] stashed file parameter (suitable for larger files used in Pipeline)
+- [ ] archived file parameter (compatible with freestyle, and suitable if you want to ensure parameters are kept after the build ends)
+- [X] implementation of GUI submission
+- [X] manual test of GUI submission
+- [ ] automated test of GUI submission
+- [X] implementation of CLI submission
+- [ ] manual test of CLI submission
+- [ ] automated test of CLI submission
+- [X] implementation of `POST` submission
+- [ ] manual test of `POST` submission
+- [ ] automated test of `POST` submission
+- [ ] `withFileParameter` wrapper step
+- [ ] manual test of `input` step submission
+- [ ] automated test of `input` step submission
+- [ ] design for passing via `build` step
+- [ ] inline help text
 
 ## Getting started
 
-TODO Tell users how to configure your plugin here, include screenshots, pipeline examples and 
-configuration-as-code examples.
-
-## Issues
-
-TODO Decide where you're going to host your issues, the default is Jenkins JIRA, but you can also enable GitHub issues,
-If you use GitHub issues there's no need for this section; else add the following line:
-
-Report issues and enhancements in the [Jenkins issue tracker](https://issues.jenkins-ci.org/).
-
-## Contributing
-
-TODO review the default [CONTRIBUTING](https://github.com/jenkinsci/.github/blob/master/CONTRIBUTING.md) file and make sure it is appropriate for your plugin, if not then add your own one adapted from the base file
-
-Refer to our [contribution guidelines](https://github.com/jenkinsci/.github/blob/master/CONTRIBUTING.md)
+TODO
 
 ## LICENSE
 
 Licensed under MIT, see [LICENSE](LICENSE.md)
-

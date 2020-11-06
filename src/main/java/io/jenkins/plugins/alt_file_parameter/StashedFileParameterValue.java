@@ -38,8 +38,6 @@ import org.apache.commons.io.FileUtils;
 import org.jenkinsci.plugins.workflow.flow.StashManager;
 import org.kohsuke.stapler.DataBoundConstructor;
 
-// TODO variant to archive instead
-
 public final class StashedFileParameterValue extends AbstractFileParameterValue {
 
     private transient File tmp;
