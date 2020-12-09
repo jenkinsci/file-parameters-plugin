@@ -24,6 +24,7 @@
 
 package io.jenkins.plugins.alt_file_parameter;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import hudson.EnvVars;
 import hudson.FilePath;
 import hudson.Launcher;
@@ -33,6 +34,8 @@ import hudson.model.TaskListener;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.Files;
+
 import org.apache.commons.fileupload.FileItem;
 import org.apache.commons.io.FileUtils;
 import org.jenkinsci.plugins.workflow.flow.StashManager;
@@ -40,6 +43,9 @@ import org.kohsuke.stapler.DataBoundConstructor;
 
 public final class StashedFileParameterValue extends AbstractFileParameterValue {
 
+    private static final long serialVersionUID = 1L;
+
+    @SuppressFBWarnings(value = "SE_TRANSIENT_FIELD_NOT_RESTORED", justification = "Doesn't make sense to persist it")
     private transient File tmp;
     
     @DataBoundConstructor public StashedFileParameterValue(String name, FileItem file) throws IOException {
@@ -58,12 +64,18 @@ public final class StashedFileParameterValue extends AbstractFileParameterValue 
         if (tmp != null) {
             TaskListener listener = TaskListener.NULL; // TODO no option to print to build log
             try {
-                StashManager.stash(build, name, new FilePath(tmp.getParentFile()), new Launcher.LocalLauncher(listener), env, listener, tmp.getName(), null, false, false);
+                StashManager.stash(build, name, new FilePath(tmp.getParentFile()),
+                                    new Launcher.LocalLauncher(listener), env, listener, tmp.getName(), null, false,
+                                    false );
             } catch (IOException | InterruptedException x) {
-                throw new RuntimeException(x);
+                throw new RuntimeException( x );
             }
-            tmp.delete();
-            tmp = null;
+            try {
+                Files.deleteIfExists(tmp.toPath());
+                tmp = null;
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
         }
     }
 
