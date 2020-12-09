@@ -26,12 +26,10 @@ package io.jenkins.plugins.alt_file_parameter;
 
 import hudson.Extension;
 import hudson.model.ParameterDefinition;
-import hudson.model.ParameterValue;
 import java.io.IOException;
 import java.io.InputStream;
-import net.sf.json.JSONObject;
+import org.jenkinsci.Symbol;
 import org.kohsuke.stapler.DataBoundConstructor;
-import org.kohsuke.stapler.StaplerRequest;
 
 public final class Base64FileParameterDefinition extends AbstractFileParameterDefinition {
 
@@ -47,6 +45,7 @@ public final class Base64FileParameterDefinition extends AbstractFileParameterDe
         return new Base64FileParameterValue(name, src);
     }
 
+    @Symbol("base64File")
     @Extension public static final class DescriptorImpl extends ParameterDefinition.ParameterDescriptor {
         
         @Override public String getDisplayName() {

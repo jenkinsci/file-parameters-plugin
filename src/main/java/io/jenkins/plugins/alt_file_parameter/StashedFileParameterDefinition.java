@@ -28,6 +28,7 @@ import hudson.Extension;
 import hudson.model.ParameterDefinition;
 import java.io.IOException;
 import java.io.InputStream;
+import org.jenkinsci.Symbol;
 import org.kohsuke.stapler.DataBoundConstructor;
 
 public final class StashedFileParameterDefinition extends AbstractFileParameterDefinition {
@@ -44,6 +45,7 @@ public final class StashedFileParameterDefinition extends AbstractFileParameterD
         return new StashedFileParameterValue(name, src);
     }
 
+    @Symbol("stashed64File")
     @Extension public static final class DescriptorImpl extends ParameterDefinition.ParameterDescriptor {
 
         @Override public String getDisplayName() {
