@@ -15,21 +15,41 @@ See [JENKINS-27413](https://issues.jenkins-ci.org/browse/JENKINS-27413) and [JEN
 ## Implementation status
 
 - [X] Base64 file parameter (simple and suitable for small files)
-- [X] stashed file parameter (suitable for larger files used in Pipeline)
+  - [X] implementation
+  - [X] manual test
+  - [X] automated test
+- [ ] stashed file parameter (suitable for larger files used in Pipeline)
+  - [X] implementation
+  - [X] manual test
+  - [ ] automated test
 - [ ] archived file parameter (compatible with freestyle, and suitable if you want to ensure parameters are kept after the build ends)
-- [X] implementation of GUI submission
-- [X] manual test of GUI submission
-- [ ] automated test of GUI submission
-- [X] implementation of CLI submission
-- [ ] manual test of CLI submission
-- [ ] automated test of CLI submission
-- [X] implementation of `POST` submission
-- [ ] manual test of `POST` submission
-- [ ] automated test of `POST` submission
+  - [ ] implementation
+  - [ ] manual test
+  - [ ] automated test
+- [ ] GUI submission
+  - [X] implementation
+  - [X] manual test
+  - [ ] automated test
+- [ ] CLI submission
+  - [X] implementation
+  - [ ] manual test
+  - [X] automated test
+- [ ] `POST` submission
+  - [X] implementation
+  - [ ] manual test
+  - [ ] automated test
 - [ ] `withFileParameter` wrapper step
-- [ ] manual test of `input` step submission
-- [ ] automated test of `input` step submission
-- [ ] design for passing via `build` step
+  - [ ] implementation
+  - [ ] manual test
+  - [ ] automated test
+- [ ] `input` step submission
+  - [ ] design
+  - [ ] manual test
+  - [ ] automated test
+- [ ] `build` step submission
+  - [ ] design
+  - [ ] manual test
+  - [ ] automated test
 - [ ] inline help text
 
 ## Getting started
