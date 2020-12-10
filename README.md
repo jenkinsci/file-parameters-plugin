@@ -1,10 +1,10 @@
-# Alternative File Parameter Plugin
+# File Parameters Plugin
 
-[![Build Status](https://ci.jenkins.io/job/Plugins/job/alt-file-parameter-plugin-plugin/job/master/badge/icon)](https://ci.jenkins.io/job/Plugins/job/alt-file-parameter-plugin-plugin/job/master/)
-[![Contributors](https://img.shields.io/github/contributors/jenkinsci/alt-file-parameter-plugin-plugin.svg)](https://github.com/jenkinsci/alt-file-parameter-plugin-plugin/graphs/contributors)
-[![Jenkins Plugin](https://img.shields.io/jenkins/plugin/v/alt-file-parameter-plugin.svg)](https://plugins.jenkins.io/alt-file-parameter-plugin)
-[![GitHub release](https://img.shields.io/github/release/jenkinsci/alt-file-parameter-plugin-plugin.svg?label=changelog)](https://github.com/jenkinsci/alt-file-parameter-plugin-plugin/releases/latest)
-[![Jenkins Plugin Installs](https://img.shields.io/jenkins/plugin/i/alt-file-parameter-plugin.svg?color=blue)](https://plugins.jenkins.io/alt-file-parameter-plugin)
+[![Build Status](https://ci.jenkins.io/job/Plugins/job/files-parameter-plugin-plugin/job/master/badge/icon)](https://ci.jenkins.io/job/Plugins/job/files-parameter-plugin-plugin/job/master/)
+[![Contributors](https://img.shields.io/github/contributors/jenkinsci/files-parameter-plugin-plugin.svg)](https://github.com/jenkinsci/files-parameter-plugin-plugin/graphs/contributors)
+[![Jenkins Plugin](https://img.shields.io/jenkins/plugin/v/files-parameter-plugin.svg)](https://plugins.jenkins.io/files-parameter-plugin)
+[![GitHub release](https://img.shields.io/github/release/jenkinsci/files-parameter-plugin-plugin.svg?label=changelog)](https://github.com/jenkinsci/files-parameter-plugin-plugin/releases/latest)
+[![Jenkins Plugin Installs](https://img.shields.io/jenkins/plugin/i/files-parameter-plugin.svg?color=blue)](https://plugins.jenkins.io/files-parameter-plugin)
 
 ## Introduction
 

@@ -22,30 +22,38 @@
  * THE SOFTWARE.
  */
 
-package io.jenkins.plugins.alt_file_parameter;
+package io.jenkins.plugins.file_parameters;
 
-import hudson.model.ParameterValue;
+import hudson.Extension;
+import hudson.model.ParameterDefinition;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
-import org.apache.commons.io.IOUtils;
-import org.kohsuke.stapler.StaplerResponse;
+import org.jenkinsci.Symbol;
+import org.kohsuke.stapler.DataBoundConstructor;
 
-abstract class AbstractFileParameterValue extends ParameterValue {
+public final class StashedFileParameterDefinition extends AbstractFileParameterDefinition {
 
-    protected AbstractFileParameterValue(String name) {
-        super(name);
+    @DataBoundConstructor public StashedFileParameterDefinition(String name, String description) {
+        super(name, description);
     }
 
-    protected abstract InputStream open() throws IOException;
+    @Override protected Class<? extends AbstractFileParameterValue> valueType() {
+        return StashedFileParameterValue.class;
+    }
 
-    public void doDownload(StaplerResponse rsp) throws IOException {
-        rsp.setContentType("application/octet-stream");
-        try (InputStream is = open(); OutputStream os = rsp.getOutputStream()) {
-            IOUtils.copy(is, os);
-        }
+    @Override protected AbstractFileParameterValue createValue(String name, InputStream src) throws IOException {
+        return new StashedFileParameterValue(name, src);
     }
 
     // TODO equals/hashCode
+
+    @Symbol("stashed64File")
+    @Extension public static final class DescriptorImpl extends ParameterDefinition.ParameterDescriptor {
+
+        @Override public String getDisplayName() {
+            return "Stashed File Parameter";
+        }
+
+    }
 
 }

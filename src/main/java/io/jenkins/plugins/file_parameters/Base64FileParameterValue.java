@@ -22,38 +22,44 @@
  * THE SOFTWARE.
  */
 
-package io.jenkins.plugins.alt_file_parameter;
+package io.jenkins.plugins.file_parameters;
 
-import hudson.Extension;
-import hudson.model.ParameterDefinition;
+import hudson.EnvVars;
+import hudson.model.Run;
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import org.jenkinsci.Symbol;
+import java.util.Base64;
+import org.apache.commons.fileupload.FileItem;
+import org.apache.commons.io.IOUtils;
 import org.kohsuke.stapler.DataBoundConstructor;
 
-public final class Base64FileParameterDefinition extends AbstractFileParameterDefinition {
-
-    @DataBoundConstructor public Base64FileParameterDefinition(String name, String description) {
-        super(name, description);
-    }
+public final class Base64FileParameterValue extends AbstractFileParameterValue {
     
-    @Override protected Class<? extends AbstractFileParameterValue> valueType() {
-        return Base64FileParameterValue.class;
+    private final String base64;
+
+    @DataBoundConstructor public Base64FileParameterValue(String name, FileItem file) throws IOException {
+        this(name, file.getInputStream());
+        file.delete();
     }
 
-    @Override protected AbstractFileParameterValue createValue(String name, InputStream src) throws IOException {
-        return new Base64FileParameterValue(name, src);
+    Base64FileParameterValue(String name, InputStream src) throws IOException {
+        super(name);
+        base64 = Base64.getEncoder().encodeToString(IOUtils.toByteArray(src));
     }
 
-    // TODO equals/hashCode
+    @Override public void buildEnvironment(Run<?, ?> build, EnvVars env) {
+        env.put(name, base64);
+    }
 
-    @Symbol("base64File")
-    @Extension public static final class DescriptorImpl extends ParameterDefinition.ParameterDescriptor {
-        
-        @Override public String getDisplayName() {
-            return "Base64 File Parameter";
-        }
+    // TODO createVariableResolver if desired for freestyle
 
+    @Override public Object getValue() {
+        return base64;
+    }
+
+    @Override protected InputStream open() throws IOException {
+        return new ByteArrayInputStream(Base64.getDecoder().decode(base64));
     }
 
 }

@@ -1,2 +1,2 @@
 _extends: .github
-tag-template: alt-file-parameter-plugin-$NEXT_MINOR_VERSION
+tag-template: file-parameters-plugin-$NEXT_MINOR_VERSION
