@@ -38,24 +38,24 @@ import org.junit.Rule;
 import org.jvnet.hudson.test.BuildWatcher;
 import org.jvnet.hudson.test.JenkinsRule;
 
-public class AbstractFileParameterDefinitionTest {
+public class FileParameterWrapperTest {
 
     @ClassRule public static BuildWatcher buildWatcher = new BuildWatcher();
 
     @Rule public JenkinsRule r = new JenkinsRule();
 
-    // adapted from BuildCommandTest.fileParameter
-    @Test public void cli() throws Exception {
+    @Test public void base64() throws Exception {
+        r.createSlave("remote", null, null);
         WorkflowJob p = r.createProject(WorkflowJob.class, "myjob");
         p.addProperty(new ParametersDefinitionProperty(new Base64FileParameterDefinition("FILE", null)));
-        p.setDefinition(new CpsFlowDefinition("echo(/received: $FILE/)", true));
+        p.setDefinition(new CpsFlowDefinition("node('remote') {withFileParameter('FILE') {echo(/loaded '${readFile(FILE).toUpperCase(Locale.ROOT)}' from $FILE/)}}", true));
         assertThat(new CLICommandInvoker(r, "build").
                 withStdin(new ByteArrayInputStream("uploaded content here".getBytes())).
                 invokeWithArgs("-f", "-p", "FILE=", "myjob"),
                 CLICommandInvoker.Matcher.succeeded());
         WorkflowRun b = p.getBuildByNumber(1);
         assertNotNull(b);
-        r.assertLogContains("received: dXBsb2FkZWQgY29udGVudCBoZXJl", b);
+        r.assertLogContains("loaded 'UPLOADED CONTENT HERE' from ", b);
     }
 
 }
