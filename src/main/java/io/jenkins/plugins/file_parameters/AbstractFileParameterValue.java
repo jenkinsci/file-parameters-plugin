@@ -22,44 +22,30 @@
  * THE SOFTWARE.
  */
 
-package io.jenkins.plugins.alt_file_parameter;
+package io.jenkins.plugins.file_parameters;
 
-import hudson.EnvVars;
-import hudson.model.Run;
-import java.io.ByteArrayInputStream;
+import hudson.model.ParameterValue;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Base64;
-import org.apache.commons.fileupload.FileItem;
+import java.io.OutputStream;
 import org.apache.commons.io.IOUtils;
-import org.kohsuke.stapler.DataBoundConstructor;
+import org.kohsuke.stapler.StaplerResponse;
 
-public final class Base64FileParameterValue extends AbstractFileParameterValue {
-    
-    private final String base64;
+abstract class AbstractFileParameterValue extends ParameterValue {
 
-    @DataBoundConstructor public Base64FileParameterValue(String name, FileItem file) throws IOException {
-        this(name, file.getInputStream());
-        file.delete();
-    }
-
-    Base64FileParameterValue(String name, InputStream src) throws IOException {
+    protected AbstractFileParameterValue(String name) {
         super(name);
-        base64 = Base64.getEncoder().encodeToString(IOUtils.toByteArray(src));
     }
 
-    @Override public void buildEnvironment(Run<?, ?> build, EnvVars env) {
-        env.put(name, base64);
+    protected abstract InputStream open() throws IOException;
+
+    public void doDownload(StaplerResponse rsp) throws IOException {
+        rsp.setContentType("application/octet-stream");
+        try (InputStream is = open(); OutputStream os = rsp.getOutputStream()) {
+            IOUtils.copy(is, os);
+        }
     }
 
-    // TODO createVariableResolver if desired for freestyle
-
-    @Override public Object getValue() {
-        return base64;
-    }
-
-    @Override protected InputStream open() throws IOException {
-        return new ByteArrayInputStream(Base64.getDecoder().decode(base64));
-    }
+    // TODO equals/hashCode
 
 }

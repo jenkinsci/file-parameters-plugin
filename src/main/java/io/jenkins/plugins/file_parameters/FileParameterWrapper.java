@@ -22,7 +22,7 @@
  * THE SOFTWARE.
  */
 
-package io.jenkins.plugins.alt_file_parameter;
+package io.jenkins.plugins.file_parameters;
 
 import hudson.AbortException;
 import hudson.EnvVars;

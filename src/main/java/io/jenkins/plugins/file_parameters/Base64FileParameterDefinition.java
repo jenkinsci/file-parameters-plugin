@@ -22,7 +22,7 @@
  * THE SOFTWARE.
  */
 
-package io.jenkins.plugins.alt_file_parameter;
+package io.jenkins.plugins.file_parameters;
 
 import hudson.Extension;
 import hudson.model.ParameterDefinition;
@@ -31,27 +31,27 @@ import java.io.InputStream;
 import org.jenkinsci.Symbol;
 import org.kohsuke.stapler.DataBoundConstructor;
 
-public final class StashedFileParameterDefinition extends AbstractFileParameterDefinition {
+public final class Base64FileParameterDefinition extends AbstractFileParameterDefinition {
 
-    @DataBoundConstructor public StashedFileParameterDefinition(String name, String description) {
+    @DataBoundConstructor public Base64FileParameterDefinition(String name, String description) {
         super(name, description);
     }
-
+    
     @Override protected Class<? extends AbstractFileParameterValue> valueType() {
-        return StashedFileParameterValue.class;
+        return Base64FileParameterValue.class;
     }
 
     @Override protected AbstractFileParameterValue createValue(String name, InputStream src) throws IOException {
-        return new StashedFileParameterValue(name, src);
+        return new Base64FileParameterValue(name, src);
     }
 
     // TODO equals/hashCode
 
-    @Symbol("stashed64File")
+    @Symbol("base64File")
     @Extension public static final class DescriptorImpl extends ParameterDefinition.ParameterDescriptor {
-
+        
         @Override public String getDisplayName() {
-            return "Stashed File Parameter";
+            return "Base64 File Parameter";
         }
 
     }
