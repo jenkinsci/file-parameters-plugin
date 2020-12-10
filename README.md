@@ -1,4 +1,4 @@
-# alt-file-parameter-plugin
+# Alternative File Parameter Plugin
 
 [![Build Status](https://ci.jenkins.io/job/Plugins/job/alt-file-parameter-plugin-plugin/job/master/badge/icon)](https://ci.jenkins.io/job/Plugins/job/alt-file-parameter-plugin-plugin/job/master/)
 [![Contributors](https://img.shields.io/github/contributors/jenkinsci/alt-file-parameter-plugin-plugin.svg)](https://github.com/jenkinsci/alt-file-parameter-plugin-plugin/graphs/contributors)
