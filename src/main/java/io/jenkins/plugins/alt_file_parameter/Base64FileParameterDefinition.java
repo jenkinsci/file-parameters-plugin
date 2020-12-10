@@ -45,6 +45,8 @@ public final class Base64FileParameterDefinition extends AbstractFileParameterDe
         return new Base64FileParameterValue(name, src);
     }
 
+    // TODO equals/hashCode
+
     @Symbol("base64File")
     @Extension public static final class DescriptorImpl extends ParameterDefinition.ParameterDescriptor {
         

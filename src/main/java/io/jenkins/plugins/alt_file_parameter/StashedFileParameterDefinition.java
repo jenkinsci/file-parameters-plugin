@@ -45,6 +45,8 @@ public final class StashedFileParameterDefinition extends AbstractFileParameterD
         return new StashedFileParameterValue(name, src);
     }
 
+    // TODO equals/hashCode
+
     @Symbol("stashed64File")
     @Extension public static final class DescriptorImpl extends ParameterDefinition.ParameterDescriptor {
 
