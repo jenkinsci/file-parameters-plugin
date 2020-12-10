@@ -16,16 +16,19 @@ See [JENKINS-27413](https://issues.jenkins-ci.org/browse/JENKINS-27413) and [JEN
 
 - [X] Base64 file parameter (simple and suitable for small files)
   - [X] implementation
+  - [ ] inline help text
   - [X] `withFileParameter` compatibility
   - [X] manual test
   - [X] automated test
 - [ ] stashed file parameter (suitable for larger files used in Pipeline)
   - [X] implementation
+  - [ ] inline help text
   - [ ] `withFileParameter` compatibility
   - [X] manual test
   - [ ] automated test
 - [ ] archived file parameter (compatible with freestyle, and suitable if you want to ensure parameters are kept after the build ends)
   - [ ] implementation
+  - [ ] inline help text
   - [ ] `withFileParameter` compatibility
   - [ ] manual test
   - [ ] automated test
@@ -43,6 +46,7 @@ See [JENKINS-27413](https://issues.jenkins-ci.org/browse/JENKINS-27413) and [JEN
   - [ ] automated test
 - [ ] `withFileParameter` wrapper step
   - [X] implementation
+  - [X] inline help text
   - [ ] manual test
   - [X] automated test
 - [ ] `input` step submission
@@ -53,7 +57,6 @@ See [JENKINS-27413](https://issues.jenkins-ci.org/browse/JENKINS-27413) and [JEN
   - [ ] design
   - [ ] manual test
   - [ ] automated test
-- [ ] inline help text
 - [ ] tests using Declarative syntax
 
 ## Getting started
