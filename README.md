@@ -39,9 +39,9 @@ See [JENKINS-27413](https://issues.jenkins-ci.org/browse/JENKINS-27413) and [JEN
   - [ ] manual test
   - [ ] automated test
 - [ ] `withFileParameter` wrapper step
-  - [ ] implementation
+  - [X] implementation
   - [ ] manual test
-  - [ ] automated test
+  - [X] automated test
 - [ ] `input` step submission
   - [ ] design
   - [ ] manual test
