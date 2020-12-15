@@ -60,6 +60,7 @@ See [JENKINS-27413](https://issues.jenkins-ci.org/browse/JENKINS-27413) and [JEN
   - [ ] manual test
   - [ ] automated test
 - [ ] tests using Declarative syntax
+- [ ] tests using `build-token-root`
 
 ## Getting started
 
