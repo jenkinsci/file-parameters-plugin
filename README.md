@@ -23,7 +23,7 @@ See [JENKINS-27413](https://issues.jenkins-ci.org/browse/JENKINS-27413) and [JEN
 - [ ] stashed file parameter (suitable for larger files used in Pipeline)
   - [X] implementation
   - [ ] inline help text
-  - [ ] `withFileParameter` compatibility
+  - [X] `withFileParameter` compatibility (manual test)
   - [X] manual test
   - [X] automated test
   - [ ] sanity check against `artifact-manager-s3`
@@ -48,7 +48,7 @@ See [JENKINS-27413](https://issues.jenkins-ci.org/browse/JENKINS-27413) and [JEN
 - [ ] `withFileParameter` wrapper step
   - [X] implementation
   - [X] inline help text
-  - [ ] manual test
+  - [X] manual test
   - [X] automated test
   - [ ] option to tolerate undefined parameter
 - [ ] `input` step submission
