@@ -25,7 +25,7 @@ See [JENKINS-27413](https://issues.jenkins-ci.org/browse/JENKINS-27413) and [JEN
   - [ ] inline help text
   - [ ] `withFileParameter` compatibility
   - [X] manual test
-  - [ ] automated test
+  - [X] automated test
   - [ ] sanity check against `artifact-manager-s3`
 - [ ] archived file parameter (compatible with freestyle, and suitable if you want to ensure parameters are kept after the build ends)
   - [ ] implementation

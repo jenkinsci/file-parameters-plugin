@@ -58,4 +58,20 @@ public class FileParameterWrapperTest {
         r.assertLogContains("loaded 'UPLOADED CONTENT HERE' from ", b);
     }
 
+    @Test public void stashed() throws Exception {
+        r.createSlave("remote", null, null);
+        WorkflowJob p = r.createProject(WorkflowJob.class, "myjob");
+        p.addProperty(new ParametersDefinitionProperty(new StashedFileParameterDefinition("FILE-STASH", null)));
+        p.setDefinition(new CpsFlowDefinition("node('remote') {" +
+                                                  " unstash \"FILE-STASH\"\n" +
+                                                  " echo(/loaded '${readFile(\"FILE-STASH\").toUpperCase(Locale.ROOT)}'/)}", true));
+        assertThat(new CLICommandInvoker(r, "build").
+                       withStdin(new ByteArrayInputStream("uploaded content here".getBytes())).
+                       invokeWithArgs("-f", "-p", "FILE-STASH=", "myjob"),
+                   CLICommandInvoker.Matcher.succeeded());
+        WorkflowRun b = p.getBuildByNumber(1);
+        assertNotNull(b);
+        r.assertLogContains("loaded 'UPLOADED CONTENT HERE'", b);
+    }
+
 }
