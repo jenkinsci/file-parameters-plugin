@@ -41,13 +41,13 @@ pipeline {
 
 - [X] Base64 file parameter (simple and suitable for small files)
   - [X] implementation
-  - [ ] inline help text
+  - [X] inline help text
   - [X] `withFileParameter` compatibility
   - [X] manual test
   - [X] automated test
 - [ ] stashed file parameter (suitable for larger files used in Pipeline)
   - [X] implementation
-  - [ ] inline help text
+  - [X] inline help text
   - [X] `withFileParameter` compatibility (manual test)
   - [X] manual test
   - [X] automated test
