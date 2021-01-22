@@ -25,9 +25,12 @@
 package io.jenkins.plugins.file_parameters;
 
 import hudson.cli.CLICommandInvoker;
+import hudson.model.ParameterDefinition;
 import hudson.model.ParametersDefinitionProperty;
 import java.io.ByteArrayInputStream;
 import static org.hamcrest.MatcherAssert.assertThat;
+
+import hudson.model.Result;
 import org.jenkinsci.plugins.workflow.cps.CpsFlowDefinition;
 import org.jenkinsci.plugins.workflow.job.WorkflowJob;
 import org.jenkinsci.plugins.workflow.job.WorkflowRun;
@@ -58,6 +61,46 @@ public class FileParameterWrapperTest {
         r.assertLogContains("loaded 'UPLOADED CONTENT HERE' from ", b);
     }
 
+    @Test public void base64DeclarativeParameterCreated() throws Exception {
+        r.createSlave("remote", null, null);
+        WorkflowJob p = r.createProject(WorkflowJob.class, "myjob");
+
+        String pipeline = "pipeline {\n" +
+            "  agent any\n" +
+            "  parameters {\n" +
+            "    base64File(name: 'FILE')\n" +
+            "  }\n" +
+            "  stages {\n" +
+            "    stage('Example') {\n" +
+            "      steps {\n" +
+            "        withFileParameter('FILE') {\n" +
+            "          echo(/loaded '${readFile(FILE).toUpperCase(Locale.ROOT)}' from $FILE/) \n" +
+            "        }\n" +
+            "      }\n" +
+            "    }\n" +
+            "  }\n" +
+            "}";
+
+        p.setDefinition(new CpsFlowDefinition(pipeline, true));
+        WorkflowRun run = p.scheduleBuild2(0).get();
+        r.waitForCompletion(run);
+        // definitely will fail but we just ensure parameter has been created
+        r.assertBuildStatus(Result.FAILURE, run);
+        ParametersDefinitionProperty pdp = p.getProperty(ParametersDefinitionProperty.class);
+        assertNotNull("parameters definition property is null", pdp);
+        ParameterDefinition pd = pdp.getParameterDefinition( "FILE");
+        assertNotNull("parameters definition is null", pd);
+        assertEquals("parameter not type Base64FileParameterDefinition", Base64FileParameterDefinition.class, pd.getClass());
+
+        assertThat(new CLICommandInvoker(r, "build").
+                       withStdin(new ByteArrayInputStream("uploaded content here".getBytes())).
+                       invokeWithArgs("-f", "-p", "FILE=", "myjob"),
+                   CLICommandInvoker.Matcher.succeeded());
+        WorkflowRun b = p.getBuildByNumber(2);
+        assertNotNull(b);
+        r.assertLogContains("loaded 'UPLOADED CONTENT HERE'", b);
+    }
+
     @Test public void stashed() throws Exception {
         r.createSlave("remote", null, null);
         WorkflowJob p = r.createProject(WorkflowJob.class, "myjob");
@@ -71,6 +114,45 @@ public class FileParameterWrapperTest {
                        invokeWithArgs("-f", "-p", "FILE-STASH=", "myjob"),
                    CLICommandInvoker.Matcher.succeeded());
         WorkflowRun b = p.getBuildByNumber(1);
+        assertNotNull(b);
+        r.assertLogContains("loaded 'UPLOADED CONTENT HERE'", b);
+    }
+
+    @Test public void stashedDeclarativeParameterCreated() throws Exception {
+        r.createSlave("remote", null, null);
+        WorkflowJob p = r.createProject(WorkflowJob.class, "myjob");
+
+        String pipeline = "pipeline {\n" +
+            "    agent any\n" +
+            "    parameters {\n" +
+            "        stashed64File(name: 'FILE-STASH')\n" +
+            "    }\n" +
+            "    stages {\n" +
+            "        stage('Example') {\n" +
+            "            steps {\n" +
+            "                  unstash \"FILE-STASH\"\n" +
+            "                  echo(/loaded '${readFile(\"./FILE-STASH\").toUpperCase(Locale.ROOT)}'/)        \n" +
+            "            }\n" +
+            "        }\n" +
+            "    }\n" +
+            "}";
+
+        p.setDefinition(new CpsFlowDefinition(pipeline, true));
+        WorkflowRun run = p.scheduleBuild2(0).get();
+        r.waitForCompletion(run);
+        // definitely will fail but we just ensure parameter has been created
+        r.assertBuildStatus(Result.FAILURE, run);
+        ParametersDefinitionProperty pdp = p.getProperty(ParametersDefinitionProperty.class);
+        assertNotNull("parameters definition property is null", pdp);
+        ParameterDefinition pd = pdp.getParameterDefinition( "FILE-STASH");
+        assertNotNull("parameters definition is null", pd);
+        assertEquals("parameter not type Base64FileParameterDefinition", StashedFileParameterDefinition.class, pd.getClass());
+
+        assertThat(new CLICommandInvoker(r, "build").
+                       withStdin(new ByteArrayInputStream("uploaded content here".getBytes())).
+                       invokeWithArgs("-f", "-p", "FILE-STASH=", "myjob"),
+                   CLICommandInvoker.Matcher.succeeded());
+        WorkflowRun b = p.getBuildByNumber(2);
         assertNotNull(b);
         r.assertLogContains("loaded 'UPLOADED CONTENT HERE'", b);
     }
