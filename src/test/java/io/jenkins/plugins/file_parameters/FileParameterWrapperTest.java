@@ -35,6 +35,7 @@ import org.jenkinsci.plugins.workflow.cps.CpsFlowDefinition;
 import org.jenkinsci.plugins.workflow.job.WorkflowJob;
 import org.jenkinsci.plugins.workflow.job.WorkflowRun;
 import org.junit.ClassRule;
+import org.junit.Ignore;
 import org.junit.Test;
 import static org.junit.Assert.*;
 import org.junit.Rule;
@@ -59,6 +60,35 @@ public class FileParameterWrapperTest {
         WorkflowRun b = p.getBuildByNumber(1);
         assertNotNull(b);
         r.assertLogContains("loaded 'UPLOADED CONTENT HERE' from ", b);
+    }
+
+    @Ignore("need to implement option to tolerate undefined parameter")
+    @Test public void base64Undefined() throws Exception {
+        r.createSlave("remote", null, null);
+        WorkflowJob p = r.createProject(WorkflowJob.class, "myjob");
+        p.addProperty(new ParametersDefinitionProperty(new Base64FileParameterDefinition("FILE", null)));
+        String pipeline = "pipeline {\n" +
+            "  agent any\n" +
+            "  parameters {\n" +
+            "    base64File(name: 'FILE')\n" +
+            "  }\n" +
+            "  stages {\n" +
+            "    stage('Example') {\n" +
+            "      steps {\n" +
+            "        withFileParameter('FILE') {\n" +
+            "          echo('foo') \n" +
+            "        }\n" +
+            "      }\n" +
+            "    }\n" +
+            "  }\n" +
+            "}";
+        p.setDefinition(new CpsFlowDefinition(pipeline, true));
+        WorkflowRun run = p.scheduleBuild2(0).get();
+        r.waitForCompletion(run);
+        // definitely will fail but we just ensure parameter has been created
+        r.assertBuildStatus(Result.SUCCESS, run);
+        WorkflowRun b = p.getBuildByNumber(1);
+        r.assertLogContains("foo", b);
     }
 
     @Test public void base64DeclarativeParameterCreated() throws Exception {
