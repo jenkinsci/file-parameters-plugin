@@ -12,6 +12,31 @@ Offers alternative types of file parameter that are compatible with Pipeline and
 
 See [JENKINS-27413](https://issues.jenkins-ci.org/browse/JENKINS-27413) and [JENKINS-29289](https://issues.jenkins-ci.org/browse/JENKINS-29289) for background.
 
+## Usage in declarative pipeline
+
+You can now declare file parameters as is in declarative pipeline:
+
+```
+pipeline {
+  agent any
+  parameters {
+    base64File(name: 'FILE')
+    stashed64File(name: 'FILE-STASH')
+  }
+  stages {
+    stage('Example') {
+      steps {
+        withFileParameter('FILE') {
+          echo(/loaded '${readFile(FILE)}' from $FILE/)                                                    
+        }
+        unstash "FILE-STASH"
+        echo(/loaded '${readFile("./FILE-STASH")}'/)          
+      }
+    }
+  }
+}
+```
+
 ## Implementation status
 
 - [X] Base64 file parameter (simple and suitable for small files)

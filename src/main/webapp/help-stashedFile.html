@@ -1,0 +1,19 @@
+<div>
+  <p>File parameter compatible with Pipeline but this one stash the file, how to use it in a declarative pipeline:</p>
+  <pre>
+pipeline {
+  agent any
+  parameters {
+    stashed64File(name: 'FILE-STASH')
+  }
+  stages {
+    stage('Example') {
+      steps {
+        unstash "FILE-STASH"
+        echo(/loaded '${readFile("./FILE-STASH")}'/)
+      }
+    }
+  }
+}
+ </pre>
+</div>

@@ -65,6 +65,7 @@ public class FileParameterWrapperTest {
         p.setDefinition(new CpsFlowDefinition("node('remote') {" +
                                                   " unstash \"FILE-STASH\"\n" +
                                                   " echo(/loaded '${readFile(\"FILE-STASH\").toUpperCase(Locale.ROOT)}'/)}", true));
+
         assertThat(new CLICommandInvoker(r, "build").
                        withStdin(new ByteArrayInputStream("uploaded content here".getBytes())).
                        invokeWithArgs("-f", "-p", "FILE-STASH=", "myjob"),

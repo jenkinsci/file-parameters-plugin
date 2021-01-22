@@ -1,0 +1,20 @@
+<div>
+  <p>File parameter compatible with Pipeline, how to use it in a declarative pipeline:</p>
+  <pre>
+pipeline {
+  agent any
+  parameters {
+    base64File(name: 'THEFILE')
+  }
+  stages {
+    stage('Example') {
+      steps {
+        withFileParameter('THEFILE') {
+        echo(/loaded '${readFile(FILE)}' from $FILE/)
+        }
+      }
+    }
+  }
+}
+  </pre>
+</div>

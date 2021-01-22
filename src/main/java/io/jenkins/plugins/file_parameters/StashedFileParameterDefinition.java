@@ -54,6 +54,11 @@ public final class StashedFileParameterDefinition extends AbstractFileParameterD
             return "Stashed File Parameter";
         }
 
+        @Override public String getHelpFile()
+        {
+            return "/plugin/file-parameters/help-stashedFile.html";
+        }
+
     }
 
 }
