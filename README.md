@@ -29,8 +29,8 @@ pipeline {
         withFileParameter('FILE') {
           echo(/loaded '${readFile(FILE)}' from $FILE/)                                                    
         }
-        unstash "FILE-STASH"
-        echo(/loaded '${readFile("./FILE-STASH")}'/)          
+        unstash 'FILE-STASH'
+        echo(/loaded '${readFile('FILE-STASH')}'/)
       }
     }
   }
