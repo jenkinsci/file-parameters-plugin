@@ -27,7 +27,7 @@ pipeline {
     stage('Example') {
       steps {
         withFileParameter('FILE') {
-          echo(/loaded '${readFile(FILE)}' from $FILE/)                                                    
+          sh 'cat $FILE'
         }
         unstash 'FILE-STASH'
         echo(/loaded '${readFile('FILE-STASH')}'/)
