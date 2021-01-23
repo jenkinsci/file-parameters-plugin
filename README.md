@@ -16,7 +16,7 @@ See [JENKINS-27413](https://issues.jenkins-ci.org/browse/JENKINS-27413) and [JEN
 
 You can now declare file parameters as is in declarative pipeline:
 
-```
+```groovy
 pipeline {
   agent any
   parameters {
