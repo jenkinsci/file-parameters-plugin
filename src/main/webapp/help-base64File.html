@@ -10,7 +10,7 @@ pipeline {
     stage('Example') {
       steps {
         withFileParameter('THEFILE') {
-        echo(/loaded '${readFile(FILE)}' from $FILE/)
+          echo(/loaded '${readFile(FILE)}' from $FILE/)
         }
       }
     }
