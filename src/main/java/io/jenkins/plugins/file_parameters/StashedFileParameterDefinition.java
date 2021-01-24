@@ -51,7 +51,7 @@ public final class StashedFileParameterDefinition extends AbstractFileParameterD
     @Extension public static final class DescriptorImpl extends ParameterDefinition.ParameterDescriptor {
 
         @Override public String getDisplayName() {
-            return "Stashed Base64 File Parameter";
+            return "Stashed File Parameter";
         }
 
     }
