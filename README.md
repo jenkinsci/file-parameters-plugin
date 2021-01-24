@@ -21,7 +21,7 @@ pipeline {
   agent any
   parameters {
     base64File 'FILE'
-    stashedBase64File 'FILE-STASH'
+    stashedFile 'FILE-STASH'
   }
   stages {
     stage('Example') {
