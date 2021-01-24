@@ -47,16 +47,11 @@ public final class StashedFileParameterDefinition extends AbstractFileParameterD
 
     // TODO equals/hashCode
 
-    @Symbol("stashed64File")
+    @Symbol("stashedBase64File")
     @Extension public static final class DescriptorImpl extends ParameterDefinition.ParameterDescriptor {
 
         @Override public String getDisplayName() {
-            return "Stashed File Parameter";
-        }
-
-        @Override public String getHelpFile()
-        {
-            return "/plugin/file-parameters/help-stashedFile.html";
+            return "Stashed Base64 File Parameter";
         }
 
     }

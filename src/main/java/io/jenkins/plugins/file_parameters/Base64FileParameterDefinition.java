@@ -53,10 +53,6 @@ public final class Base64FileParameterDefinition extends AbstractFileParameterDe
         @Override public String getDisplayName() {
             return "Base64 File Parameter";
         }
-
-        @Override public String getHelpFile() {
-            return "/plugin/file-parameters/help-base64File.html";
-        }
     }
 
 

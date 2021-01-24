@@ -70,7 +70,7 @@ public class FileParameterWrapperTest {
         String pipeline = "pipeline {\n" +
             "  agent any\n" +
             "  parameters {\n" +
-            "    base64File(name: 'FILE')\n" +
+            "    base64File 'FILE'\n" +
             "  }\n" +
             "  stages {\n" +
             "    stage('Example') {\n" +
@@ -98,7 +98,7 @@ public class FileParameterWrapperTest {
         String pipeline = "pipeline {\n" +
             "  agent any\n" +
             "  parameters {\n" +
-            "    base64File(name: 'FILE')\n" +
+            "    base64File 'FILE'\n" +
             "  }\n" +
             "  stages {\n" +
             "    stage('Example') {\n" +
@@ -155,7 +155,7 @@ public class FileParameterWrapperTest {
         String pipeline = "pipeline {\n" +
             "    agent any\n" +
             "    parameters {\n" +
-            "        stashedBase64File(name: 'FILE-STASH')\n" +
+            "        stashedBase64File 'FILE-STASH'\n" +
             "    }\n" +
             "    stages {\n" +
             "        stage('Example') {\n" +
