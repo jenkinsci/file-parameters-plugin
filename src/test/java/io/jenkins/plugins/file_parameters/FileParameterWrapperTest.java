@@ -155,7 +155,7 @@ public class FileParameterWrapperTest {
         String pipeline = "pipeline {\n" +
             "    agent any\n" +
             "    parameters {\n" +
-            "        stashed64File(name: 'FILE-STASH')\n" +
+            "        stashedBase64File(name: 'FILE-STASH')\n" +
             "    }\n" +
             "    stages {\n" +
             "        stage('Example') {\n" +
