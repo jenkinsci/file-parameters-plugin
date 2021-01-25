@@ -62,8 +62,7 @@ public class FileParameterWrapperTest {
         r.assertLogContains("loaded 'UPLOADED CONTENT HERE' from ", b);
     }
 
-    @Ignore("need to implement option to tolerate undefined parameter")
-    @Test public void base64Undefined() throws Exception {
+    @Test public void base64UndefinedFail() throws Exception {
         r.createSlave("remote", null, null);
         WorkflowJob p = r.createProject(WorkflowJob.class, "myjob");
         p.addProperty(new ParametersDefinitionProperty(new Base64FileParameterDefinition("FILE", null)));
@@ -85,10 +84,35 @@ public class FileParameterWrapperTest {
         p.setDefinition(new CpsFlowDefinition(pipeline, true));
         WorkflowRun run = p.scheduleBuild2(0).get();
         r.waitForCompletion(run);
-        // definitely will fail but we just ensure parameter has been created
+        r.assertBuildStatus(Result.FAILURE, run);
+        r.assertLogContains("No parameter named FILE", run);
+    }
+
+    @Test public void base64WithAllowNoFile() throws Exception {
+        r.createSlave("remote", null, null);
+        WorkflowJob p = r.createProject(WorkflowJob.class, "myjob");
+        p.addProperty(new ParametersDefinitionProperty(new Base64FileParameterDefinition("FILE", null)));
+        String pipeline = "pipeline {\n" +
+            "  agent any\n" +
+            "  parameters {\n" +
+            "    base64File (name:'FILE')\n" +
+            "  }\n" +
+            "  stages {\n" +
+            "    stage('Example') {\n" +
+            "      steps {\n" +
+            "        withFileParameter(name:'FILE', allowNoFile: true) {\n" +
+            "          echo('foo') \n" +
+            "        }\n" +
+            "      }\n" +
+            "    }\n" +
+            "  }\n" +
+            "}";
+        p.setDefinition(new CpsFlowDefinition(pipeline, true));
+        WorkflowRun run = p.scheduleBuild2(0).get();
+        r.waitForCompletion(run);
         r.assertBuildStatus(Result.SUCCESS, run);
-        WorkflowRun b = p.getBuildByNumber(1);
-        r.assertLogContains("foo", b);
+        r.assertLogContains("foo", run);
+        r.assertLogContains("Skip file parameter as there is no parameter with name: 'FILE'", run);
     }
 
     @Test public void base64DeclarativeParameterCreated() throws Exception {
