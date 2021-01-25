@@ -70,7 +70,7 @@ pipeline {
   - [X] implementation
   - [ ] manual test
   - [ ] automated test
-- [ ] `withFileParameter` wrapper step
+- [X] `withFileParameter` wrapper step
   - [X] implementation
   - [X] inline help text
   - [X] manual test
