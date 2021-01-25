@@ -75,7 +75,7 @@ pipeline {
   - [X] inline help text
   - [X] manual test
   - [X] automated test
-  - [ ] option to tolerate undefined parameter
+  - [X] option to tolerate undefined parameter
 - [ ] `input` step submission
   - [ ] design
   - [ ] manual test
