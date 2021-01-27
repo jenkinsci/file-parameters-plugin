@@ -26,7 +26,7 @@ pipeline {
   stages {
     stage('Example') {
       steps {
-        withFileParameter('FILE') {
+        withFileParameter(name:'FILE', allowNoFile: true) {
           sh 'cat $FILE'
         }
         unstash 'FILE-STASH'
