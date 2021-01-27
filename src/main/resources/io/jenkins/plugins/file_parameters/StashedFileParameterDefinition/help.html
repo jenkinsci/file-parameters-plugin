@@ -10,7 +10,7 @@ pipeline {
     stage('Example') {
       steps {
         unstash "FILE-STASH"
-        echo(/loaded '${readFile("./FILE-STASH")}'/)
+        sh 'cat FILE-STASH'
       }
     }
   }
