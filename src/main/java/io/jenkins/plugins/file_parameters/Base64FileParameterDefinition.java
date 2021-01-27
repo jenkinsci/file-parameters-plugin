@@ -55,6 +55,4 @@ public final class Base64FileParameterDefinition extends AbstractFileParameterDe
         }
     }
 
-
-
 }
