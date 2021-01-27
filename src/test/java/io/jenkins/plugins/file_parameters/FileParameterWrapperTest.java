@@ -69,7 +69,7 @@ public class FileParameterWrapperTest {
         String pipeline = "pipeline {\n" +
             "  agent any\n" +
             "  parameters {\n" +
-            "    base64File (name:'FILE')\n" +
+            "    base64File(name:'FILE')\n" +
             "  }\n" +
             "  stages {\n" +
             "    stage('Example') {\n" +
