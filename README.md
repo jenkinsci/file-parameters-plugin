@@ -20,8 +20,8 @@ You can now declare file parameters as is in declarative pipeline:
 pipeline {
   agent any
   parameters {
-    base64File 'FILE'
-    stashedFile 'FILE-STASH'
+    base64File(name: 'FILE')
+    stashedFile(name: 'FILE-STASH')
   }
   stages {
     stage('Example') {
