@@ -49,9 +49,10 @@ pipeline {
   - [X] implementation
   - [X] inline help text
   - [X] `withFileParameter` compatibility
-  - [ ] manual test
+  - [X] manual test
   - [X] automated test
   - [ ] sanity check against `artifact-manager-s3`
+  - [ ] suppress download link when stash is missing
 - [ ] archived file parameter (compatible with freestyle, and suitable if you want to ensure parameters are kept after the build ends)
   - [ ] implementation
   - [ ] inline help text
@@ -66,10 +67,10 @@ pipeline {
   - [X] implementation
   - [ ] manual test
   - [X] automated test
-- [ ] `POST` submission
+- [X] `POST` submission
   - [X] implementation
-  - [ ] manual test
-  - [ ] automated test
+  - [X] manual test
+  - [X] automated test
 - [X] `withFileParameter` wrapper step
   - [X] implementation
   - [X] inline help text
@@ -86,10 +87,6 @@ pipeline {
   - [ ] automated test
 - [X] tests using Declarative syntax
 - [ ] tests using `build-token-root`
-
-## Getting started
-
-TODO
 
 ## LICENSE
 
