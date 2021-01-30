@@ -59,6 +59,8 @@ public class AbstractFileParameterDefinitionTest {
 
     @Rule public TemporaryFolder tmp = new TemporaryFolder();
 
+    // TODO test of GUI upload
+
     // adapted from BuildCommandTest.fileParameter
     @Test public void cli() throws Exception {
         WorkflowJob p = r.createProject(WorkflowJob.class, "myjob");

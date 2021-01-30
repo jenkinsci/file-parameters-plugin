@@ -12,6 +12,35 @@ Offers alternative types of file parameter that are compatible with Pipeline and
 
 See [JENKINS-27413](https://issues.jenkins-ci.org/browse/JENKINS-27413) and [JENKINS-29289](https://issues.jenkins-ci.org/browse/JENKINS-29289) for background.
 
+## Minimal usage
+
+If you defined a Base64 file parameter named `FILE` in the GUI configuration for a Pipeline project, you can access it in a couple of ways:
+
+```groovy
+node {
+    sh 'echo $FILE | base64 -d'
+    withFileParameter('FILE') {
+        sh 'cat $FILE'
+    }
+}
+```
+
+That is: as a Base64-encoded environment variable; or via a temporary file with the decoded content.
+
+A stashed file parameter can also be accessed in a couple of ways:
+
+```groovy
+node {
+    unstash 'FILE'
+    sh 'cat FILE'
+    withFileParameter('FILE') {
+        sh 'cat $FILE'
+    }
+}
+```
+
+That is: as a stash of the same name with a single file of the same name; or, again, via a temporary file.
+
 ## Usage in Declarative Pipeline
 
 You can now declare and use file parameters via Declarative Pipeline syntax:
@@ -60,57 +89,6 @@ You can use Base64 parameters for passing _small_ files to downstream builds:
 ```groovy
 build job: 'downstream', parameters: [base64File(name: 'file', base64: 'aGVsbG8=')]
 ```
-
-## Implementation status
-
-- [X] Base64 file parameter (simple and suitable for small files)
-  - [X] implementation
-  - [X] inline help text
-  - [X] `withFileParameter` compatibility
-  - [X] manual test
-  - [X] automated test
-- [ ] stashed file parameter (suitable for larger files used in Pipeline)
-  - [X] implementation
-  - [X] inline help text
-  - [X] `withFileParameter` compatibility
-  - [X] manual test
-  - [X] automated test
-  - [ ] sanity check against `artifact-manager-s3`
-  - [ ] suppress download link when stash is missing
-- [ ] archived file parameter (compatible with freestyle, and suitable if you want to ensure parameters are kept after the build ends)
-  - [ ] implementation
-  - [ ] inline help text
-  - [ ] `withFileParameter` compatibility
-  - [ ] manual test
-  - [ ] automated test
-- [ ] GUI submission
-  - [X] implementation
-  - [X] manual test
-  - [ ] automated test
-- [ ] CLI submission
-  - [X] implementation
-  - [ ] manual test
-  - [X] automated test
-- [X] `POST` submission
-  - [X] implementation
-  - [X] manual test
-  - [X] automated test
-- [X] `withFileParameter` wrapper step
-  - [X] implementation
-  - [X] inline help text
-  - [X] manual test
-  - [X] automated test
-  - [X] option to tolerate undefined parameter
-- [ ] `input` step submission
-  - [ ] design
-  - [X] manual test
-  - [ ] automated test
-- [ ] `build` step submission
-  - [ ] design
-  - [X] manual test
-  - [ ] automated test
-- [X] tests using Declarative syntax
-- [ ] tests using `build-token-root`
 
 ## LICENSE
 
