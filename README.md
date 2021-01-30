@@ -12,25 +12,25 @@ Offers alternative types of file parameter that are compatible with Pipeline and
 
 See [JENKINS-27413](https://issues.jenkins-ci.org/browse/JENKINS-27413) and [JENKINS-29289](https://issues.jenkins-ci.org/browse/JENKINS-29289) for background.
 
-## Usage in declarative pipeline
+## Usage in Declarative Pipeline
 
-You can now declare file parameters as is in declarative pipeline:
+You can now declare and use file parameters via Declarative Pipeline syntax:
 
 ```groovy
 pipeline {
   agent any
   parameters {
-    base64File(name: 'FILE')
-    stashedFile(name: 'FILE-STASH')
+    base64File(name: 'small')
+    stashedFile(name: 'large')
   }
   stages {
     stage('Example') {
       steps {
-        withFileParameter(name:'FILE', allowNoFile: true) {
-          sh 'cat $FILE'
+        withFileParameter(name: 'small') {
+          sh 'cat $small'
         }
-        unstash 'FILE-STASH'
-        echo(/loaded '${readFile('FILE-STASH')}'/)
+        unstash 'large'
+        sh 'cat large'
       }
     }
   }
@@ -84,7 +84,7 @@ pipeline {
   - [ ] design
   - [ ] manual test
   - [ ] automated test
-- [ ] tests using Declarative syntax
+- [X] tests using Declarative syntax
 - [ ] tests using `build-token-root`
 
 ## Getting started
