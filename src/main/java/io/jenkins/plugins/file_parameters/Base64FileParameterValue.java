@@ -32,20 +32,31 @@ import java.io.InputStream;
 import java.util.Base64;
 import org.apache.commons.fileupload.FileItem;
 import org.apache.commons.io.IOUtils;
+import org.jenkinsci.Symbol;
 import org.kohsuke.stapler.DataBoundConstructor;
+import org.kohsuke.stapler.DataBoundSetter;
 
+@Symbol("base64File")
 public final class Base64FileParameterValue extends AbstractFileParameterValue {
     
-    private final String base64;
+    private String base64;
 
-    @DataBoundConstructor public Base64FileParameterValue(String name, FileItem file) throws IOException {
-        this(name, file.getInputStream());
+    @DataBoundConstructor public Base64FileParameterValue(String name) throws IOException {
+        super(name);
+    }
+
+    @DataBoundSetter public void setFile(FileItem file) throws IOException {
+        base64 = Base64.getEncoder().encodeToString(IOUtils.toByteArray(file.getInputStream()));
         file.delete();
     }
 
     Base64FileParameterValue(String name, InputStream src) throws IOException {
         super(name);
         base64 = Base64.getEncoder().encodeToString(IOUtils.toByteArray(src));
+    }
+
+    @DataBoundSetter public void setBase64(String base64) throws IOException {
+        this.base64 = base64;
     }
 
     @Override public void buildEnvironment(Run<?, ?> build, EnvVars env) {
