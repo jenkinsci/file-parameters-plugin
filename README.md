@@ -37,6 +37,22 @@ pipeline {
 }
 ```
 
+## Usage with `input`
+
+You can use Base64 parameters for uploading _small_ files in the middle of the build:
+
+```groovy
+def fb64 = input message: 'upload', parameters: [base64File('file')]
+node {
+    withEnv(["fb64=$fb64"]) {
+        sh 'echo $fb64 | base64 -d'
+    }
+}
+```
+
+Currently there is no mechanism for doing this with stashed files.
+Nor can you use the `withFileParameter` wrapper here.
+
 ## Implementation status
 
 - [X] Base64 file parameter (simple and suitable for small files)
@@ -79,7 +95,7 @@ pipeline {
   - [X] option to tolerate undefined parameter
 - [ ] `input` step submission
   - [ ] design
-  - [ ] manual test
+  - [X] manual test
   - [ ] automated test
 - [ ] `build` step submission
   - [ ] design
