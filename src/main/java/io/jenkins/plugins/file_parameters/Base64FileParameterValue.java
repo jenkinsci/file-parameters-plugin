@@ -58,7 +58,7 @@ public final class Base64FileParameterValue extends AbstractFileParameterValue {
         return base64;
     }
 
-    @Override protected InputStream open() throws IOException {
+    @Override protected InputStream open(Run<?, ?> build) throws IOException {
         return new ByteArrayInputStream(Base64.getDecoder().decode(base64));
     }
 

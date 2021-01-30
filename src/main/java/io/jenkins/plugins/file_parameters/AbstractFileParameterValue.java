@@ -24,24 +24,64 @@
 
 package io.jenkins.plugins.file_parameters;
 
+import edu.umd.cs.findbugs.annotations.CheckForNull;
+import edu.umd.cs.findbugs.annotations.NonNull;
+import hudson.EnvVars;
+import hudson.FilePath;
+import hudson.Launcher;
+import hudson.Util;
 import hudson.model.ParameterValue;
+import hudson.model.Run;
+import hudson.model.TaskListener;
+import java.io.FilterInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import org.apache.commons.io.IOUtils;
+import org.kohsuke.stapler.AncestorInPath;
 import org.kohsuke.stapler.StaplerResponse;
 
+/**
+ * Implement either {@link #open} and/or {@link #createTempFile}.
+ */
 abstract class AbstractFileParameterValue extends ParameterValue {
 
     protected AbstractFileParameterValue(String name) {
         super(name);
     }
 
-    protected abstract InputStream open() throws IOException;
+    protected InputStream open(@CheckForNull Run<?,?> build) throws IOException, InterruptedException {
+        assert Util.isOverridden(AbstractFileParameterValue.class, getClass(), "createTempFile", Run.class, FilePath.class, EnvVars.class, Launcher.class, TaskListener.class);
+        if (build == null) {
+            throw new IOException("Cannot operate outside of a build context");
+        }
+        FilePath tempDir = new FilePath(Util.createTempDir());
+        FilePath f = createTempFile(build, tempDir, new EnvVars(EnvVars.masterEnvVars), new Launcher.LocalLauncher(TaskListener.NULL), TaskListener.NULL);
+        return new FilterInputStream(f.read()) {
+            @Override
+            public void close() throws IOException {
+                super.close();
+                try {
+                    tempDir.deleteRecursive();
+                } catch (InterruptedException x) {
+                    throw new IOException(x);
+                }
+            }
+        };
+    }
 
-    public void doDownload(StaplerResponse rsp) throws IOException {
+    protected FilePath createTempFile(@NonNull Run<?,?> build, @NonNull FilePath tempDir, @NonNull EnvVars env, @NonNull Launcher launcher, @NonNull TaskListener listener) throws IOException, InterruptedException {
+        assert Util.isOverridden(AbstractFileParameterValue.class, getClass(), "open", Run.class);
+        FilePath f = tempDir.createTempFile(name, null);
+        try (InputStream is = open(build)) {
+            f.copyFrom(is);
+        }
+        return f;
+    }
+
+    public void doDownload(@AncestorInPath Run<?,?> build, StaplerResponse rsp) throws Exception {
         rsp.setContentType("application/octet-stream");
-        try (InputStream is = open(); OutputStream os = rsp.getOutputStream()) {
+        try (InputStream is = open(build); OutputStream os = rsp.getOutputStream()) {
             IOUtils.copy(is, os);
         }
     }

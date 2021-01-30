@@ -158,14 +158,11 @@ public class FileParameterWrapperTest {
     @Test public void stashed() throws Exception {
         r.createSlave("remote", null, null);
         WorkflowJob p = r.createProject(WorkflowJob.class, "myjob");
-        p.addProperty(new ParametersDefinitionProperty(new StashedFileParameterDefinition("FILE-STASH", null)));
-        p.setDefinition(new CpsFlowDefinition("node('remote') {" +
-                                                  " unstash \"FILE-STASH\"\n" +
-                                                  " echo(/loaded '${readFile(\"FILE-STASH\").toUpperCase(Locale.ROOT)}'/)}", true));
-
+        p.addProperty(new ParametersDefinitionProperty(new StashedFileParameterDefinition("FILE", null)));
+        p.setDefinition(new CpsFlowDefinition("node('remote') {withFileParameter('FILE') {echo(/loaded '${readFile(FILE).toUpperCase(Locale.ROOT)}' from $FILE/)}}", true));
         assertThat(new CLICommandInvoker(r, "build").
                        withStdin(new ByteArrayInputStream("uploaded content here".getBytes())).
-                       invokeWithArgs("-f", "-p", "FILE-STASH=", "myjob"),
+                       invokeWithArgs("-f", "-p", "FILE=", "myjob"),
                    CLICommandInvoker.Matcher.succeeded());
         WorkflowRun b = p.getBuildByNumber(1);
         assertNotNull(b);
@@ -179,13 +176,14 @@ public class FileParameterWrapperTest {
         String pipeline = "pipeline {\n" +
             "    agent any\n" +
             "    parameters {\n" +
-            "        stashedFile(name:'FILE-STASH')\n" +
+            "        stashedFile(name:'FILE')\n" +
             "    }\n" +
             "    stages {\n" +
             "        stage('Example') {\n" +
             "            steps {\n" +
-            "                  unstash \"FILE-STASH\"\n" +
-            "                  echo(/loaded '${readFile(\"./FILE-STASH\").toUpperCase(Locale.ROOT)}'/)        \n" +
+            "                withFileParameter('FILE') {\n" +
+            "                    echo(/loaded '${readFile(FILE).toUpperCase(Locale.ROOT)}'/)\n" +
+            "                }\n" +
             "            }\n" +
             "        }\n" +
             "    }\n" +
@@ -198,13 +196,13 @@ public class FileParameterWrapperTest {
         r.assertBuildStatus(Result.FAILURE, run);
         ParametersDefinitionProperty pdp = p.getProperty(ParametersDefinitionProperty.class);
         assertNotNull("parameters definition property is null", pdp);
-        ParameterDefinition pd = pdp.getParameterDefinition( "FILE-STASH");
+        ParameterDefinition pd = pdp.getParameterDefinition("FILE");
         assertNotNull("parameters definition is null", pd);
         assertEquals("parameter not type Base64FileParameterDefinition", StashedFileParameterDefinition.class, pd.getClass());
 
         assertThat(new CLICommandInvoker(r, "build").
                        withStdin(new ByteArrayInputStream("uploaded content here".getBytes())).
-                       invokeWithArgs("-f", "-p", "FILE-STASH=", "myjob"),
+                       invokeWithArgs("-f", "-p", "FILE=", "myjob"),
                    CLICommandInvoker.Matcher.succeeded());
         WorkflowRun b = p.getBuildByNumber(2);
         assertNotNull(b);
