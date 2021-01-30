@@ -79,8 +79,9 @@ public final class StashedFileParameterValue extends AbstractFileParameterValue 
         }
     }
 
-    @Override protected InputStream open() throws IOException {
-        throw new IOException(); // TODO StashManager.unstash to a temp dir
+    @Override protected FilePath createTempFile(Run<?, ?> build, FilePath tempDir, EnvVars env, Launcher launcher, TaskListener listener) throws IOException, InterruptedException {
+        StashManager.unstash(build, name, tempDir, launcher, env, listener);
+        return tempDir.child(name);
     }
 
 }

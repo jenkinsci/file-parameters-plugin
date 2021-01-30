@@ -86,10 +86,7 @@ public final class FileParameterWrapper extends SimpleBuildWrapper {
             throw new AbortException("Missing workspace or could not make temp dir");
         }
         tempDir.mkdirs();
-        FilePath f = tempDir.createTempFile(name, null);
-        try (InputStream is = ((AbstractFileParameterValue) pv).open()) {
-            f.copyFrom(is);
-        }
+        FilePath f = ((AbstractFileParameterValue) pv).createTempFile(build, tempDir, initialEnvironment, launcher, listener);
         context.env(name, f.getRemote());
         context.setDisposer(new Delete(f.getRemote()));
     }
