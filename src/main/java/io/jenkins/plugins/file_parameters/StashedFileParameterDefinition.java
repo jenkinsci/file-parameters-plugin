@@ -33,8 +33,8 @@ import org.kohsuke.stapler.DataBoundConstructor;
 
 public final class StashedFileParameterDefinition extends AbstractFileParameterDefinition {
 
-    @DataBoundConstructor public StashedFileParameterDefinition(String name, String description) {
-        super(name, description);
+    @DataBoundConstructor public StashedFileParameterDefinition(String name) {
+        super(name);
     }
 
     @Override protected Class<? extends AbstractFileParameterValue> valueType() {

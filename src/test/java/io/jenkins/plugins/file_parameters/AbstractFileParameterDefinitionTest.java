@@ -47,7 +47,7 @@ public class AbstractFileParameterDefinitionTest {
     // adapted from BuildCommandTest.fileParameter
     @Test public void cli() throws Exception {
         WorkflowJob p = r.createProject(WorkflowJob.class, "myjob");
-        p.addProperty(new ParametersDefinitionProperty(new Base64FileParameterDefinition("FILE", null)));
+        p.addProperty(new ParametersDefinitionProperty(new Base64FileParameterDefinition("FILE")));
         p.setDefinition(new CpsFlowDefinition("echo(/received: $FILE/)", true));
         assertThat(new CLICommandInvoker(r, "build").
                 withStdin(new ByteArrayInputStream("uploaded content here".getBytes())).

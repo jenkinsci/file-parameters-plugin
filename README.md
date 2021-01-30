@@ -20,13 +20,13 @@ You can now declare and use file parameters via Declarative Pipeline syntax:
 pipeline {
   agent any
   parameters {
-    base64File(name: 'small')
-    stashedFile(name: 'large')
+    base64File 'small'
+    stashedFile 'large'
   }
   stages {
     stage('Example') {
       steps {
-        withFileParameter(name: 'small') {
+        withFileParameter('small') {
           sh 'cat $small'
         }
         unstash 'large'

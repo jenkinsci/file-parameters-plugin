@@ -35,7 +35,6 @@ import org.jenkinsci.plugins.workflow.cps.CpsFlowDefinition;
 import org.jenkinsci.plugins.workflow.job.WorkflowJob;
 import org.jenkinsci.plugins.workflow.job.WorkflowRun;
 import org.junit.ClassRule;
-import org.junit.Ignore;
 import org.junit.Test;
 import static org.junit.Assert.*;
 import org.junit.Rule;
@@ -51,7 +50,7 @@ public class FileParameterWrapperTest {
     @Test public void base64() throws Exception {
         r.createSlave("remote", null, null);
         WorkflowJob p = r.createProject(WorkflowJob.class, "myjob");
-        p.addProperty(new ParametersDefinitionProperty(new Base64FileParameterDefinition("FILE", null)));
+        p.addProperty(new ParametersDefinitionProperty(new Base64FileParameterDefinition("FILE")));
         p.setDefinition(new CpsFlowDefinition("node('remote') {withFileParameter('FILE') {echo(/loaded '${readFile(FILE).toUpperCase(Locale.ROOT)}' from $FILE/)}}", true));
         assertThat(new CLICommandInvoker(r, "build").
                 withStdin(new ByteArrayInputStream("uploaded content here".getBytes())).
@@ -65,11 +64,11 @@ public class FileParameterWrapperTest {
     @Test public void base64UndefinedFail() throws Exception {
         r.createSlave("remote", null, null);
         WorkflowJob p = r.createProject(WorkflowJob.class, "myjob");
-        p.addProperty(new ParametersDefinitionProperty(new Base64FileParameterDefinition("FILE", null)));
+        p.addProperty(new ParametersDefinitionProperty(new Base64FileParameterDefinition("FILE")));
         String pipeline = "pipeline {\n" +
             "  agent any\n" +
             "  parameters {\n" +
-            "    base64File(name:'FILE')\n" +
+            "    base64File 'FILE'\n" +
             "  }\n" +
             "  stages {\n" +
             "    stage('Example') {\n" +
@@ -91,11 +90,11 @@ public class FileParameterWrapperTest {
     @Test public void base64WithAllowNoFile() throws Exception {
         r.createSlave("remote", null, null);
         WorkflowJob p = r.createProject(WorkflowJob.class, "myjob");
-        p.addProperty(new ParametersDefinitionProperty(new Base64FileParameterDefinition("FILE", null)));
+        p.addProperty(new ParametersDefinitionProperty(new Base64FileParameterDefinition("FILE")));
         String pipeline = "pipeline {\n" +
             "  agent any\n" +
             "  parameters {\n" +
-            "    base64File(name:'FILE')\n" +
+            "    base64File 'FILE'\n" +
             "  }\n" +
             "  stages {\n" +
             "    stage('Example') {\n" +
@@ -122,7 +121,7 @@ public class FileParameterWrapperTest {
         String pipeline = "pipeline {\n" +
             "  agent any\n" +
             "  parameters {\n" +
-            "    base64File (name: 'FILE')\n" +
+            "    base64File 'FILE'\n" +
             "  }\n" +
             "  stages {\n" +
             "    stage('Example') {\n" +
@@ -158,7 +157,7 @@ public class FileParameterWrapperTest {
     @Test public void stashed() throws Exception {
         r.createSlave("remote", null, null);
         WorkflowJob p = r.createProject(WorkflowJob.class, "myjob");
-        p.addProperty(new ParametersDefinitionProperty(new StashedFileParameterDefinition("FILE", null)));
+        p.addProperty(new ParametersDefinitionProperty(new StashedFileParameterDefinition("FILE")));
         p.setDefinition(new CpsFlowDefinition("node('remote') {withFileParameter('FILE') {echo(/loaded '${readFile(FILE).toUpperCase(Locale.ROOT)}' from $FILE/)}}", true));
         assertThat(new CLICommandInvoker(r, "build").
                        withStdin(new ByteArrayInputStream("uploaded content here".getBytes())).
@@ -176,7 +175,7 @@ public class FileParameterWrapperTest {
         String pipeline = "pipeline {\n" +
             "    agent any\n" +
             "    parameters {\n" +
-            "        stashedFile(name:'FILE')\n" +
+            "        stashedFile 'FILE'\n" +
             "    }\n" +
             "    stages {\n" +
             "        stage('Example') {\n" +
