@@ -41,6 +41,7 @@ import java.io.InputStream;
 import jenkins.tasks.SimpleBuildWrapper;
 import org.jenkinsci.Symbol;
 import org.kohsuke.stapler.DataBoundConstructor;
+import org.kohsuke.stapler.DataBoundSetter;
 
 /**
  * Saves a file parameter to a temporary local file.
@@ -49,8 +50,19 @@ public final class FileParameterWrapper extends SimpleBuildWrapper {
 
     public final String name;
 
+    private boolean allowNoFile;
+
     @DataBoundConstructor public FileParameterWrapper(String name) {
         this.name = name;
+    }
+
+    public boolean isAllowNoFile() {
+        return allowNoFile;
+    }
+
+    @DataBoundSetter
+    public void setAllowNoFile(boolean allowNoFile) {
+        this.allowNoFile = allowNoFile;
     }
 
     @Override public void setUp(Context context, Run<?, ?> build, FilePath workspace, Launcher launcher, TaskListener listener, EnvVars initialEnvironment) throws IOException, InterruptedException {
@@ -59,11 +71,15 @@ public final class FileParameterWrapper extends SimpleBuildWrapper {
             throw new AbortException("No parameters");
         }
         ParameterValue pv = pa.getParameter(name);
-        if (pv == null) {
+        if (pv == null && !allowNoFile) {
             throw new AbortException("No parameter named " + name);
         }
-        if (!(pv instanceof AbstractFileParameterValue)) {
+        if (!(pv instanceof AbstractFileParameterValue) && !allowNoFile) {
             throw new AbortException("Unsupported parameter type");
+        }
+        if (pv == null && allowNoFile) {
+            listener.getLogger().println("Skip file parameter as there is no parameter with name: '" + name + "'");
+            return;
         }
         FilePath tempDir = WorkspaceList.tempDir(workspace);
         if (tempDir == null) {

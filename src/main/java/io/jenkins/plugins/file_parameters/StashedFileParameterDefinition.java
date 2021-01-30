@@ -47,7 +47,7 @@ public final class StashedFileParameterDefinition extends AbstractFileParameterD
 
     // TODO equals/hashCode
 
-    @Symbol("stashed64File")
+    @Symbol("stashedFile")
     @Extension public static final class DescriptorImpl extends ParameterDefinition.ParameterDescriptor {
 
         @Override public String getDisplayName() {

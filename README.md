@@ -12,20 +12,45 @@ Offers alternative types of file parameter that are compatible with Pipeline and
 
 See [JENKINS-27413](https://issues.jenkins-ci.org/browse/JENKINS-27413) and [JENKINS-29289](https://issues.jenkins-ci.org/browse/JENKINS-29289) for background.
 
+## Usage in declarative pipeline
+
+You can now declare file parameters as is in declarative pipeline:
+
+```groovy
+pipeline {
+  agent any
+  parameters {
+    base64File(name: 'FILE')
+    stashedFile(name: 'FILE-STASH')
+  }
+  stages {
+    stage('Example') {
+      steps {
+        withFileParameter(name:'FILE', allowNoFile: true) {
+          sh 'cat $FILE'
+        }
+        unstash 'FILE-STASH'
+        echo(/loaded '${readFile('FILE-STASH')}'/)
+      }
+    }
+  }
+}
+```
+
 ## Implementation status
 
 - [X] Base64 file parameter (simple and suitable for small files)
   - [X] implementation
-  - [ ] inline help text
+  - [X] inline help text
   - [X] `withFileParameter` compatibility
   - [X] manual test
   - [X] automated test
 - [ ] stashed file parameter (suitable for larger files used in Pipeline)
   - [X] implementation
-  - [ ] inline help text
-  - [ ] `withFileParameter` compatibility
+  - [X] inline help text
+  - [X] `withFileParameter` compatibility (manual test)
   - [X] manual test
-  - [ ] automated test
+  - [X] automated test
   - [ ] sanity check against `artifact-manager-s3`
 - [ ] archived file parameter (compatible with freestyle, and suitable if you want to ensure parameters are kept after the build ends)
   - [ ] implementation
@@ -45,12 +70,12 @@ See [JENKINS-27413](https://issues.jenkins-ci.org/browse/JENKINS-27413) and [JEN
   - [X] implementation
   - [ ] manual test
   - [ ] automated test
-- [ ] `withFileParameter` wrapper step
+- [X] `withFileParameter` wrapper step
   - [X] implementation
   - [X] inline help text
-  - [ ] manual test
+  - [X] manual test
   - [X] automated test
-  - [ ] option to tolerate undefined parameter
+  - [X] option to tolerate undefined parameter
 - [ ] `input` step submission
   - [ ] design
   - [ ] manual test
