@@ -48,8 +48,8 @@ pipeline {
 - [ ] stashed file parameter (suitable for larger files used in Pipeline)
   - [X] implementation
   - [X] inline help text
-  - [X] `withFileParameter` compatibility (manual test)
-  - [X] manual test
+  - [X] `withFileParameter` compatibility
+  - [ ] manual test
   - [X] automated test
   - [ ] sanity check against `artifact-manager-s3`
 - [ ] archived file parameter (compatible with freestyle, and suitable if you want to ensure parameters are kept after the build ends)
