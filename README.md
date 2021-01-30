@@ -53,6 +53,14 @@ node {
 Currently there is no mechanism for doing this with stashed files.
 Nor can you use the `withFileParameter` wrapper here.
 
+## Usage with `build`
+
+You can use Base64 parameters for passing _small_ files to downstream builds:
+
+```groovy
+build job: 'downstream', parameters: [base64File(name: 'file', base64: 'aGVsbG8=')]
+```
+
 ## Implementation status
 
 - [X] Base64 file parameter (simple and suitable for small files)
@@ -99,7 +107,7 @@ Nor can you use the `withFileParameter` wrapper here.
   - [ ] automated test
 - [ ] `build` step submission
   - [ ] design
-  - [ ] manual test
+  - [X] manual test
   - [ ] automated test
 - [X] tests using Declarative syntax
 - [ ] tests using `build-token-root`

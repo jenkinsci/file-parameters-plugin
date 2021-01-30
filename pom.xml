@@ -43,26 +43,6 @@
             <artifactId>workflow-api</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.jenkins-ci.plugins.workflow</groupId>
-            <artifactId>workflow-job</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.jenkins-ci.plugins.workflow</groupId>
-            <artifactId>workflow-cps</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.jenkins-ci.plugins.workflow</groupId>
-            <artifactId>workflow-durable-task-step</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.jenkins-ci.plugins.workflow</groupId>
-            <artifactId>workflow-basic-steps</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
             <groupId>org.jenkinsci.plugins</groupId>
             <artifactId>pipeline-model-definition</artifactId>
             <scope>test</scope>
@@ -73,6 +53,11 @@
                     <artifactId>jackson-datatype-json-org</artifactId>
                 </exclusion>
             </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>org.jenkins-ci.plugins</groupId>
+            <artifactId>pipeline-build-step</artifactId>
+            <scope>test</scope>
         </dependency>
     </dependencies>
 
