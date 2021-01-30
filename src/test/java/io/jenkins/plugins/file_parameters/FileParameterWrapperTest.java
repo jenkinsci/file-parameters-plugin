@@ -208,4 +208,18 @@ public class FileParameterWrapperTest {
         r.assertLogContains("loaded 'UPLOADED CONTENT HERE'", b);
     }
 
+    @Test public void shortParameterName() throws Exception {
+        r.createSlave("remote", null, null);
+        WorkflowJob p = r.createProject(WorkflowJob.class, "p");
+        p.addProperty(new ParametersDefinitionProperty(new Base64FileParameterDefinition("F")));
+        p.setDefinition(new CpsFlowDefinition("node('remote') {withFileParameter('F') {echo(/loaded '${readFile(F).toUpperCase(Locale.ROOT)}' from $F/)}}", true));
+        assertThat(new CLICommandInvoker(r, "build").
+                withStdin(new ByteArrayInputStream("uploaded content here".getBytes())).
+                invokeWithArgs("-f", "-p", "F=", "p"),
+                CLICommandInvoker.Matcher.succeeded());
+        WorkflowRun b = p.getBuildByNumber(1);
+        assertNotNull(b);
+        r.assertLogContains("loaded 'UPLOADED CONTENT HERE' from ", b);
+    }
+
 }
