@@ -24,6 +24,7 @@
 
 package io.jenkins.plugins.file_parameters;
 
+import hudson.Util;
 import hudson.cli.CLICommand;
 import hudson.model.ParameterDefinition;
 import hudson.model.ParameterValue;
@@ -54,7 +55,7 @@ abstract class AbstractFileParameterDefinition extends ParameterDefinition {
      * Allows parameters to have a single-arg constructor.
      */
     @DataBoundSetter public void setDescription(String description) {
-        this.description = description;
+        this.description = Util.fixEmpty(description);
     }
 
     @Override public String getFormattedDescription() {
