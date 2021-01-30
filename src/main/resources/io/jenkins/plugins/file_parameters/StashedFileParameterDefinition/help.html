@@ -1,19 +1,21 @@
-<div>
-  <p>File parameter compatible with Pipeline but this one stash the file and must be used to handle bug files, how to use it in a declarative pipeline:</p>
-  <pre>
+<p>
+    File parameter compatible with Pipeline but using the stash system, better suited to large files.
+    The file will be saved to a stash named like the parameter containing one entry, also named like the parameter.
+    Example usage from Declarative Pipeline:
+</p>
+<pre>
 pipeline {
   agent any
   parameters {
-    stashedFile(name: 'FILE-STASH')
+    stashedFile(name: 'assets.zip')
   }
   stages {
     stage('Example') {
       steps {
-        unstash "FILE-STASH"
-        sh 'cat FILE-STASH'
+        unstash 'assets.zip'
+        sh 'unzip assets.zip'
       }
     }
   }
 }
  </pre>
-</div>

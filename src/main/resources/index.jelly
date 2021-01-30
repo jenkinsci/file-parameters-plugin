@@ -1,4 +1,4 @@
 <?jelly escape-by-default='true'?>
 <div>
-    TODO
+    Provides an alternative set of file parameters that work with Pipeline, unlike the type built into Jenkins core.
 </div>

@@ -1,3 +1,21 @@
-<div>
-  <p>File parameter compatible with Pipeline, must be used with small files</p>
-</div>
+<p>
+    Simple file parameter compatible with Pipeline.
+    Transmits file contents as an environment variable in Base64 encoding,
+    so it is best used with fairly small files.
+    Example usage from Declarative Pipeline:
+</p>
+<pre>
+pipeline {
+  agent any
+  parameters {
+    base64File(name: 'FILE')
+  }
+  stages {
+    stage('Example') {
+      steps {
+        sh 'echo $FILE | base64 -d > config.yaml'
+      }
+    }
+  }
+}
+</pre>

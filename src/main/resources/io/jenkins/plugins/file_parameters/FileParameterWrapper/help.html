@@ -23,8 +23,8 @@ pipeline {
   </pre>
 </div>
 <div>
-    Per default, there will be an error if there is no parameter for the build but you can ignore this error using the
-    parameter attribute <code>allowNoFile</code>. In this case your pipeline must take into account the file doesn't exists
+    By default, there will be an error if there is no parameter for the build but you can ignore this error using the
+    parameter attribute <code>allowNoFile</code>. In this case your Pipeline must take into account the possibility that the file does not exist:
     <pre>
 pipeline {
   agent any
@@ -35,7 +35,7 @@ pipeline {
     stage('Example') {
       steps {
         withFileParameter(name:'THEFILE', allowNoFile: true) {
-          echo(/loaded '${readFile(THEFILE)}' from $THEFILE/)
+          sh 'if [ -f "$THEFILE" ]; then cat $THEFILE; fi'
         }
       }
     }
