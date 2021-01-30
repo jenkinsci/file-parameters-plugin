@@ -77,7 +77,7 @@ public class AbstractFileParameterDefinitionTest {
         r.jenkins.setSecurityRealm(r.createDummySecurityRealm());
         r.jenkins.setAuthorizationStrategy(new MockAuthorizationStrategy().grant(Jenkins.ADMINISTER).everywhere().to("admin"));
         WorkflowJob p = r.createProject(WorkflowJob.class, "myjob");
-        p.addProperty(new ParametersDefinitionProperty(new Base64FileParameterDefinition("FILE", null)));
+        p.addProperty(new ParametersDefinitionProperty(new Base64FileParameterDefinition("FILE")));
         p.setDefinition(new CpsFlowDefinition("echo(/received: $FILE/)", true));
         // Like: curl -u $auth -F FILE=@/tmp/f $jenkins/job/myjob/buildWithParameters
         WebRequest req = new WebRequest(new URL(r.getURL() + "job/myjob/buildWithParameters"), HttpMethod.POST);
