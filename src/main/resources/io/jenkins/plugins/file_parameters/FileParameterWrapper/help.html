@@ -8,7 +8,7 @@
 pipeline {
   agent any
   parameters {
-    base64File(name: 'THEFILE')
+    base64File 'THEFILE'
   }
   stages {
     stage('Example') {
@@ -29,7 +29,7 @@ pipeline {
 pipeline {
   agent any
   parameters {
-    base64File(name: 'THEFILE')
+    base64File 'THEFILE'
   }
   stages {
     stage('Example') {

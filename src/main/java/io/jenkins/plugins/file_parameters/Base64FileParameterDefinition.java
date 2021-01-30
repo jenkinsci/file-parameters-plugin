@@ -33,10 +33,10 @@ import org.kohsuke.stapler.DataBoundConstructor;
 
 public final class Base64FileParameterDefinition extends AbstractFileParameterDefinition {
 
-    @DataBoundConstructor public Base64FileParameterDefinition(String name, String description) {
-        super(name, description);
+    @DataBoundConstructor public Base64FileParameterDefinition(String name) {
+        super(name);
     }
-    
+
     @Override protected Class<? extends AbstractFileParameterValue> valueType() {
         return Base64FileParameterValue.class;
     }
