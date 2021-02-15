@@ -24,7 +24,6 @@
 
 package io.jenkins.plugins.file_parameters;
 
-import hudson.Util;
 import hudson.cli.CLICommand;
 import hudson.model.ParameterDefinition;
 import hudson.model.ParameterValue;
@@ -33,37 +32,14 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Base64;
 import javax.servlet.ServletException;
-import jenkins.model.Jenkins;
 import net.sf.json.JSONObject;
 import org.apache.commons.fileupload.FileItem;
-import org.kohsuke.stapler.DataBoundSetter;
 import org.kohsuke.stapler.StaplerRequest;
 
 abstract class AbstractFileParameterDefinition extends ParameterDefinition {
 
-    private String description;
-
     protected AbstractFileParameterDefinition(String name) {
         super(name);
-    }
-
-    @Override public String getDescription() {
-        return description;
-    }
-
-    /**
-     * Allows parameters to have a single-arg constructor.
-     */
-    @DataBoundSetter public void setDescription(String description) {
-        this.description = Util.fixEmpty(description);
-    }
-
-    @Override public String getFormattedDescription() {
-        try {
-            return Jenkins.get().getMarkupFormatter().translate(getDescription());
-        } catch (IOException x) {
-            return "";
-        }
     }
 
     protected abstract Class<? extends AbstractFileParameterValue> valueType();
