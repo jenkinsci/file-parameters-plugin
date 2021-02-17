@@ -1,11 +1,5 @@
 # File Parameters Plugin
 
-[![Build Status](https://ci.jenkins.io/job/Plugins/job/file-parameters-plugin/job/master/badge/icon)](https://ci.jenkins.io/job/Plugins/job/file-parameters-plugin/job/master/)
-[![Contributors](https://img.shields.io/github/contributors/jenkinsci/file-parameters-plugin.svg)](https://github.com/jenkinsci/file-parameters-plugin/graphs/contributors)
-[![Jenkins Plugin](https://img.shields.io/jenkins/plugin/v/file-parameters.svg)](https://plugins.jenkins.io/file-parameters)
-[![GitHub release](https://img.shields.io/github/release/jenkinsci/file-parameters-plugin.svg?label=changelog)](https://github.com/jenkinsci/file-parameters-plugin/releases/latest)
-[![Jenkins Plugin Installs](https://img.shields.io/jenkins/plugin/i/file-parameters.svg?color=blue)](https://plugins.jenkins.io/file-parameters)
-
 ## Introduction
 
 Offers alternative types of file parameter that are compatible with Pipeline and do not suffer from the architectural flaws of the type built into Jenkins core.
