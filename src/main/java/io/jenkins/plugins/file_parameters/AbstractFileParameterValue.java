@@ -45,7 +45,9 @@ import org.kohsuke.stapler.StaplerResponse;
 /**
  * Implement either {@link #open} and/or {@link #createTempFile}.
  */
-abstract class AbstractFileParameterValue extends ParameterValue {
+public abstract class AbstractFileParameterValue extends ParameterValue {
+
+    @CheckForNull public String filename;
 
     protected AbstractFileParameterValue(String name) {
         super(name);
@@ -88,5 +90,12 @@ abstract class AbstractFileParameterValue extends ParameterValue {
     }
 
     // TODO equals/hashCode
+    
+    @Override public void buildEnvironment(Run<?, ?> build, EnvVars env) {
+        super.buildEnvironment(build, env);
+        if (filename != null) {
+            env.put(name + "_FILENAME", filename);
+        }
+    }
 
 }

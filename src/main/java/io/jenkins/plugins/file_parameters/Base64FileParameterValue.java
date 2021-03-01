@@ -47,6 +47,7 @@ public final class Base64FileParameterValue extends AbstractFileParameterValue {
 
     @DataBoundSetter public void setFile(FileItem file) throws IOException {
         base64 = Base64.getEncoder().encodeToString(IOUtils.toByteArray(file.getInputStream()));
+        filename = file.getName();
         file.delete();
     }
 
@@ -60,6 +61,7 @@ public final class Base64FileParameterValue extends AbstractFileParameterValue {
     }
 
     @Override public void buildEnvironment(Run<?, ?> build, EnvVars env) {
+        super.buildEnvironment(build, env);
         env.put(name, base64);
     }
 

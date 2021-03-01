@@ -65,14 +65,14 @@ public class AbstractFileParameterDefinitionTest {
     @Test public void cli() throws Exception {
         WorkflowJob p = r.createProject(WorkflowJob.class, "myjob");
         p.addProperty(new ParametersDefinitionProperty(new Base64FileParameterDefinition("FILE")));
-        p.setDefinition(new CpsFlowDefinition("echo(/received: $FILE/)", true));
+        p.setDefinition(new CpsFlowDefinition("echo(/received $env.FILE_FILENAME: $FILE/)", true));
         assertThat(new CLICommandInvoker(r, "build").
                 withStdin(new ByteArrayInputStream("uploaded content here".getBytes())).
                 invokeWithArgs("-f", "-p", "FILE=", "myjob"),
                 CLICommandInvoker.Matcher.succeeded());
         WorkflowRun b = p.getBuildByNumber(1);
         assertNotNull(b);
-        r.assertLogContains("received: dXBsb2FkZWQgY29udGVudCBoZXJl", b);
+        r.assertLogContains("received null: dXBsb2FkZWQgY29udGVudCBoZXJl", b);
     }
 
     @Test public void rest() throws Exception {
@@ -80,19 +80,19 @@ public class AbstractFileParameterDefinitionTest {
         r.jenkins.setAuthorizationStrategy(new MockAuthorizationStrategy().grant(Jenkins.ADMINISTER).everywhere().to("admin"));
         WorkflowJob p = r.createProject(WorkflowJob.class, "myjob");
         p.addProperty(new ParametersDefinitionProperty(new Base64FileParameterDefinition("FILE")));
-        p.setDefinition(new CpsFlowDefinition("echo(/received: $FILE/)", true));
+        p.setDefinition(new CpsFlowDefinition("echo(/received $FILE_FILENAME: $FILE/)", true));
         // Like: curl -u $auth -F FILE=@/tmp/f $jenkins/job/myjob/buildWithParameters
         WebRequest req = new WebRequest(new URL(r.getURL() + "job/myjob/buildWithParameters"), HttpMethod.POST);
         File f = tmp.newFile();
         FileUtils.write(f, "uploaded content here", "UTF-8");
         req.setEncodingType(FormEncodingType.MULTIPART);
-        req.setRequestParameters(Collections.<NameValuePair>singletonList(new KeyDataPair("FILE", f, "FILE", "text/plain", "UTF-8")));
+        req.setRequestParameters(Collections.<NameValuePair>singletonList(new KeyDataPair("FILE", f, "myfile.txt", "text/plain", "UTF-8")));
         User.getById("admin", true); // TODO workaround for https://github.com/jenkinsci/jenkins-test-harness/pull/273
         r.createWebClient().withBasicApiToken("admin").getPage(req);
         r.waitUntilNoActivity();
         WorkflowRun b = p.getBuildByNumber(1);
         assertNotNull(b);
-        r.assertLogContains("received: dXBsb2FkZWQgY29udGVudCBoZXJl", b);
+        r.assertLogContains("received myfile.txt: dXBsb2FkZWQgY29udGVudCBoZXJl", b);
     }
 
 }
