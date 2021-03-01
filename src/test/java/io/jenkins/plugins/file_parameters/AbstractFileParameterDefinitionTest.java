@@ -48,6 +48,7 @@ import static org.junit.Assert.*;
 import org.junit.Rule;
 import org.junit.rules.TemporaryFolder;
 import org.jvnet.hudson.test.BuildWatcher;
+import org.jvnet.hudson.test.Issue;
 import org.jvnet.hudson.test.JenkinsRule;
 import org.jvnet.hudson.test.MockAuthorizationStrategy;
 
@@ -93,6 +94,23 @@ public class AbstractFileParameterDefinitionTest {
         WorkflowRun b = p.getBuildByNumber(1);
         assertNotNull(b);
         r.assertLogContains("received myfile.txt: dXBsb2FkZWQgY29udGVudCBoZXJl", b);
+    }
+
+    @Issue("https://github.com/jenkinsci/file-parameters-plugin/issues/26")
+    @Test public void restMissingValue() throws Exception {
+        r.jenkins.setSecurityRealm(r.createDummySecurityRealm());
+        r.jenkins.setAuthorizationStrategy(new MockAuthorizationStrategy().grant(Jenkins.ADMINISTER).everywhere().to("admin"));
+        WorkflowJob p = r.createProject(WorkflowJob.class, "myjob");
+        p.addProperty(new ParametersDefinitionProperty(new Base64FileParameterDefinition("FILE")));
+        p.setDefinition(new CpsFlowDefinition("echo(/received $env.FILE_FILENAME: $env.FILE/)", true));
+        // Like: curl -u $auth $jenkins/job/myjob/buildWithParameters
+        WebRequest req = new WebRequest(new URL(r.getURL() + "job/myjob/buildWithParameters"), HttpMethod.POST);
+        User.getById("admin", true); // TODO workaround for https://github.com/jenkinsci/jenkins-test-harness/pull/273
+        r.createWebClient().withBasicApiToken("admin").getPage(req);
+        r.waitUntilNoActivity();
+        WorkflowRun b = p.getBuildByNumber(1);
+        assertNotNull(b);
+        r.assertLogContains("received null: null", b);
     }
 
 }

@@ -34,6 +34,7 @@ import java.util.Base64;
 import javax.servlet.ServletException;
 import net.sf.json.JSONObject;
 import org.apache.commons.fileupload.FileItem;
+import org.apache.commons.fileupload.FileUploadBase;
 import org.kohsuke.stapler.StaplerRequest;
 
 abstract class AbstractFileParameterDefinition extends ParameterDefinition {
@@ -54,9 +55,18 @@ abstract class AbstractFileParameterDefinition extends ParameterDefinition {
 
     @Override public ParameterValue createValue(StaplerRequest req) {
         try {
-            FileItem src = req.getFileItem(getName());
+            FileItem src;
+            try {
+                src = req.getFileItem(getName());
+            } catch (ServletException x) {
+                if (x.getCause() instanceof FileUploadBase.InvalidContentTypeException) {
+                    src = null;
+                } else {
+                    throw x;
+                }
+            }
             if (src == null) {
-                throw new RuntimeException("No file was uploaded");
+                return null;
             }
             AbstractFileParameterValue p;
             try (InputStream in = src.getInputStream()) {
