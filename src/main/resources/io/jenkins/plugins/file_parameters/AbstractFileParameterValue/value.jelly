@@ -30,6 +30,6 @@ THE SOFTWARE.
         <j:invokeStatic var="encodedName" className="hudson.Util" method="rawEncode">
             <j:arg value="${it.name}"/>
         </j:invokeStatic>
-        <a href="parameter/${encodedName}/download">${%download}</a>
+        <a href="parameter/${encodedName}/download">${%download} <j:if test="${it.filename != null}"><code>${it.filename}</code></j:if></a>
     </f:entry>
 </j:jelly>

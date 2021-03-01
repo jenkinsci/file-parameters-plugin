@@ -50,6 +50,7 @@ public final class StashedFileParameterValue extends AbstractFileParameterValue 
     
     @DataBoundConstructor public StashedFileParameterValue(String name, FileItem file) throws IOException {
         this(name, file.getInputStream());
+        filename = file.getName();
         file.delete();
     }
 
@@ -61,6 +62,7 @@ public final class StashedFileParameterValue extends AbstractFileParameterValue 
     }
 
     @Override public void buildEnvironment(Run<?, ?> build, EnvVars env) {
+        super.buildEnvironment(build, env);
         if (tmp != null) {
             TaskListener listener = TaskListener.NULL; // TODO no option to print to build log
             try {

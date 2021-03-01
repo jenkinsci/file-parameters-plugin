@@ -64,6 +64,7 @@ abstract class AbstractFileParameterDefinition extends ParameterDefinition {
             }
             src.delete();
             p.setDescription(getDescription());
+            p.filename = src.getName();
             return p;
         } catch (ServletException | IOException x) {
             throw new RuntimeException(x);
