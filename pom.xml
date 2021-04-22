@@ -13,7 +13,7 @@
     <packaging>hpi</packaging>
     <properties>
         <changelist>999999-SNAPSHOT</changelist>
-        <jenkins.version>2.281</jenkins.version>
+        <jenkins.version>2.222.4</jenkins.version>
         <java.level>8</java.level>
         <gitHubRepo>jenkinsci/${project.artifactId}-plugin</gitHubRepo>
     </properties>
@@ -24,7 +24,7 @@
         <dependencies>
             <dependency>
                 <groupId>io.jenkins.tools.bom</groupId>
-                <artifactId>bom-2.277.x</artifactId>
+                <artifactId>bom-2.222.x</artifactId>
                 <version>28</version>
                 <scope>import</scope>
                 <type>pom</type>
