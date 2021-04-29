@@ -81,7 +81,7 @@ Nor can you use the `withFileParameter` wrapper here.
 You can use Base64 parameters for passing _small_ files to downstream builds:
 
 ```groovy
-build job: 'downstream', parameters: [base64File(name: 'file', base64: 'aGVsbG8=')]
+build job: 'downstream', parameters: [base64File(name: 'file', base64: Base64.encoder.encodeToString('hello'.bytes)))]
 ```
 
 ## LICENSE
