@@ -110,4 +110,16 @@ public class AbstractFileParameterDefinitionTest {
         r.assertLogContains("received null: null", b);
     }
 
+    @Test public void buildStep() throws Exception {
+        WorkflowJob us = r.createProject(WorkflowJob.class, "us");
+        us.setDefinition(new CpsFlowDefinition("build job: 'ds', parameters: [base64File(name: 'FILE', base64: Base64.encoder.encodeToString('a message'.bytes))]", true));
+        WorkflowJob ds = r.createProject(WorkflowJob.class, "ds");
+        ds.addProperty(new ParametersDefinitionProperty(new Base64FileParameterDefinition("FILE")));
+        ds.setDefinition(new CpsFlowDefinition("echo(/got ${new String(Base64.decoder.decode(FILE))}/)", true));
+        r.buildAndAssertSuccess(us);
+        WorkflowRun b = ds.getBuildByNumber(1);
+        assertNotNull(b);
+        r.assertLogContains("got a message", b);
+    }
+
 }
