@@ -38,6 +38,7 @@ import java.nio.file.Files;
 
 import org.apache.commons.fileupload.FileItem;
 import org.apache.commons.io.FileUtils;
+import org.jenkinsci.plugins.workflow.flow.FlowExecutionOwner;
 import org.jenkinsci.plugins.workflow.flow.StashManager;
 import org.kohsuke.stapler.DataBoundConstructor;
 
@@ -64,8 +65,9 @@ public final class StashedFileParameterValue extends AbstractFileParameterValue 
     @Override public void buildEnvironment(Run<?, ?> build, EnvVars env) {
         super.buildEnvironment(build, env);
         if (tmp != null) {
-            TaskListener listener = TaskListener.NULL; // TODO no option to print to build log
             try {
+                FlowExecutionOwner feo = build instanceof FlowExecutionOwner.Executable ? ((FlowExecutionOwner.Executable) build).asFlowExecutionOwner() : null;
+                TaskListener listener = feo != null ? feo.getListener() : TaskListener.NULL;
                 StashManager.stash(build, name, new FilePath(tmp.getParentFile()),
                                     new Launcher.LocalLauncher(listener), env, listener, tmp.getName(), null, false,
                                     false );
