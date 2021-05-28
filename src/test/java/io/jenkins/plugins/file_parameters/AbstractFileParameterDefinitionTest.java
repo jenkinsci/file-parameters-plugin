@@ -31,7 +31,6 @@ import com.gargoylesoftware.htmlunit.util.KeyDataPair;
 import com.gargoylesoftware.htmlunit.util.NameValuePair;
 import hudson.cli.CLICommandInvoker;
 import hudson.model.ParametersDefinitionProperty;
-import hudson.model.User;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.net.URL;
@@ -88,7 +87,6 @@ public class AbstractFileParameterDefinitionTest {
         FileUtils.write(f, "uploaded content here", "UTF-8");
         req.setEncodingType(FormEncodingType.MULTIPART);
         req.setRequestParameters(Collections.<NameValuePair>singletonList(new KeyDataPair("FILE", f, "myfile.txt", "text/plain", "UTF-8")));
-        User.getById("admin", true); // TODO workaround for https://github.com/jenkinsci/jenkins-test-harness/pull/273
         r.createWebClient().withBasicApiToken("admin").getPage(req);
         r.waitUntilNoActivity();
         WorkflowRun b = p.getBuildByNumber(1);
@@ -105,12 +103,23 @@ public class AbstractFileParameterDefinitionTest {
         p.setDefinition(new CpsFlowDefinition("echo(/received $env.FILE_FILENAME: $env.FILE/)", true));
         // Like: curl -u $auth $jenkins/job/myjob/buildWithParameters
         WebRequest req = new WebRequest(new URL(r.getURL() + "job/myjob/buildWithParameters"), HttpMethod.POST);
-        User.getById("admin", true); // TODO workaround for https://github.com/jenkinsci/jenkins-test-harness/pull/273
         r.createWebClient().withBasicApiToken("admin").getPage(req);
         r.waitUntilNoActivity();
         WorkflowRun b = p.getBuildByNumber(1);
         assertNotNull(b);
         r.assertLogContains("received null: null", b);
+    }
+
+    @Test public void buildStep() throws Exception {
+        WorkflowJob us = r.createProject(WorkflowJob.class, "us");
+        us.setDefinition(new CpsFlowDefinition("build job: 'ds', parameters: [base64File(name: 'FILE', base64: Base64.encoder.encodeToString('a message'.bytes))]", true));
+        WorkflowJob ds = r.createProject(WorkflowJob.class, "ds");
+        ds.addProperty(new ParametersDefinitionProperty(new Base64FileParameterDefinition("FILE")));
+        ds.setDefinition(new CpsFlowDefinition("echo(/got ${new String(Base64.decoder.decode(FILE))}/)", true));
+        r.buildAndAssertSuccess(us);
+        WorkflowRun b = ds.getBuildByNumber(1);
+        assertNotNull(b);
+        r.assertLogContains("got a message", b);
     }
 
 }
