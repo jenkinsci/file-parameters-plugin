@@ -84,9 +84,9 @@ You can use Base64 parameters for passing _small_ files to downstream builds:
 build job: 'downstream', parameters: [base64File(name: 'file', base64: Base64.encoder.encodeToString('hello'.bytes)))]
 ```
 
-## Usage with REST API
+## Usage with HTTP API
 
-You can pass file parameters to the REST API:
+You can pass file parameters to the HTTP API (In the Jenkins UI, this HTTP API is also referred to as "REST API"):
 
 ```js
 const file = fileInput.files[0]; // a File object
