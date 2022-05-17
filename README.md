@@ -84,6 +84,18 @@ You can use Base64 parameters for passing _small_ files to downstream builds:
 build job: 'downstream', parameters: [base64File(name: 'file', base64: Base64.encoder.encodeToString('hello'.bytes)))]
 ```
 
+## Usage with REST API
+
+You can pass file parameters to the REST API:
+
+```js
+const file = fileInput.files[0]; // a File object
+const body = new FormData();
+body.append('ICON_FILE', file); // will come through to the job as the named file parameter 'ICON_FILE'
+const request = new Request(`${buildAPI}buildWithParameters`, { method: 'POST', body });
+fetch(request); // omitted, crumb header and other credentials
+```
+
 ## LICENSE
 
 Licensed under MIT, see [LICENSE](LICENSE.md)
