@@ -93,7 +93,7 @@ const file = fileInput.files[0]; // a File object
 const body = new FormData();
 body.append('ICON_FILE', file); // will come through to the job as the named file parameter 'ICON_FILE'
 const request = new Request(`${buildAPI}buildWithParameters`, { method: 'POST', body });
-fetch(request); // omitted, crumb header and other credentials
+fetch(request); // omitted, API token and other credentials
 ```
 
 ## LICENSE
