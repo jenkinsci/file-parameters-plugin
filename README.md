@@ -90,7 +90,7 @@ You can pass file parameters to the HTTP API (in the Jenkins UI, this HTTP API i
 
 Curl example:
 
-```
+```bash
 curl -u $auth -F FILE=@/tmp/f $jenkins/job/myjob/buildWithParameters
 ```
 
