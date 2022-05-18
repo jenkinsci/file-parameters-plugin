@@ -100,7 +100,7 @@ Javascript example:
 const file = fileInput.files[0]; // a File object
 const body = new FormData();
 body.append('FILE', file); // will come through to the job as the named file parameter 'FILE'
-const request = new Request(`${buildAPI}buildWithParameters`, { method: 'POST', body });
+const request = new Request(`${jobUrl}buildWithParameters`, { method: 'POST', body });
 fetch(request); // omitted, API token and other credentials
 ```
 
