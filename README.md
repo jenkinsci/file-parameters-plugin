@@ -84,6 +84,26 @@ You can use Base64 parameters for passing _small_ files to downstream builds:
 build job: 'downstream', parameters: [base64File(name: 'file', base64: Base64.encoder.encodeToString('hello'.bytes)))]
 ```
 
+## Usage with HTTP API
+
+You can pass file parameters to the HTTP API (in the Jenkins UI, this HTTP API is also referred to as “REST API”):
+
+Curl example:
+
+```bash
+curl -u $auth -F FILE=@/tmp/f $jenkins/job/myjob/buildWithParameters
+```
+
+Javascript example:
+
+```js
+const file = fileInput.files[0]; // a File object
+const body = new FormData();
+body.append('FILE', file); // will come through to the job as the named file parameter 'FILE'
+const request = new Request(`${jobUrl}buildWithParameters`, { method: 'POST', body });
+fetch(request); // omitted, API token and other credentials
+```
+
 ## LICENSE
 
 Licensed under MIT, see [LICENSE](LICENSE.md)
