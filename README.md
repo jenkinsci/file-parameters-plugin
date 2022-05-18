@@ -86,7 +86,7 @@ build job: 'downstream', parameters: [base64File(name: 'file', base64: Base64.en
 
 ## Usage with HTTP API
 
-You can pass file parameters to the HTTP API (in the Jenkins UI, this HTTP API is also referred to as "REST API"):
+You can pass file parameters to the HTTP API (in the Jenkins UI, this HTTP API is also referred to as “REST API”):
 
 Curl example:
 
