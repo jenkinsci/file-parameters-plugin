@@ -8,32 +8,46 @@ See [JENKINS-27413](https://issues.jenkins-ci.org/browse/JENKINS-27413) and [JEN
 
 ## Minimal usage
 
-If you defined a Base64 file parameter named `FILE` in the GUI configuration for a Pipeline project, you can access it in a couple of ways:
+### Base64 file parameter
+
+If you defined a Base64 file parameter named `FILE` in the GUI configuration for a Pipeline project, you can access it in a couple of ways - as a Base64-encoded environment variable:
 
 ```groovy
 node {
     sh 'echo $FILE | base64 -d'
+}
+```
+
+Or via a temporary file with the decoded content:
+
+```
+node {
     withFileParameter('FILE') {
         sh 'cat $FILE'
     }
 }
 ```
 
-That is: as a Base64-encoded environment variable; or via a temporary file with the decoded content.
+### Stashed file parameter
 
-A stashed file parameter can also be accessed in a couple of ways:
+A stashed file parameter can also be accessed in a couple of ways - as a stash of the same name with a single file of the same name:
 
 ```groovy
 node {
     unstash 'FILE'
     sh 'cat FILE'
+}
+```
+
+Or via a temporary file:
+
+```groovy
+node {
     withFileParameter('FILE') {
         sh 'cat $FILE'
     }
 }
 ```
-
-That is: as a stash of the same name with a single file of the same name; or, again, via a temporary file.
 
 ## Accessing original upload filename
 
