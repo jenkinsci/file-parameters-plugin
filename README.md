@@ -35,6 +35,17 @@ node {
 
 That is: as a stash of the same name with a single file of the same name; or, again, via a temporary file.
 
+## Accessing original upload filename
+
+Original filename will be stored in evironment in `<parameter_name>_FILENAME` variable - assuming parameter is named `FILE`, snippet below will give you file with original filename in current workspace:
+
+```groovy
+node {
+  unstash 'FILE'
+  sh 'mv FILE $FILE_FILENAME'
+}
+```
+
 ## Usage in Declarative Pipeline
 
 You can now declare and use file parameters via Declarative Pipeline syntax:
