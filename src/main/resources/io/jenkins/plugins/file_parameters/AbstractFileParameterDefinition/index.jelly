@@ -29,7 +29,7 @@ THE SOFTWARE.
     <f:entry title="${h.escape(it.name)}" description="${it.formattedDescription}">
         <div name="parameter">
             <input type="hidden" name="name" value="${it.name}"/>
-            <!-- TODO switch to f:file after baseline is 2.385 or newer -->
+            <!-- TODO 2.385+ switch to f:file -->
             <input name="file" class="jenkins-file-upload" type="file" jsonAware="true"/>
         </div>
     </f:entry>
