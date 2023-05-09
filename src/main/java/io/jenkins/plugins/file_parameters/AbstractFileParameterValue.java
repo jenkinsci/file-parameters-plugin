@@ -30,6 +30,7 @@ import hudson.EnvVars;
 import hudson.FilePath;
 import hudson.Launcher;
 import hudson.Util;
+import hudson.model.Failure;
 import hudson.model.ParameterValue;
 import hudson.model.Run;
 import hudson.model.TaskListener;
@@ -37,6 +38,7 @@ import java.io.FilterInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import jenkins.model.Jenkins;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.kohsuke.stapler.AncestorInPath;
@@ -47,10 +49,25 @@ import org.kohsuke.stapler.StaplerResponse;
  */
 public abstract class AbstractFileParameterValue extends ParameterValue {
 
-    @CheckForNull public String filename;
+    private @CheckForNull String filename;
 
     protected AbstractFileParameterValue(String name) {
         super(name);
+    }
+
+    public final String getFilename() {
+        return filename;
+    }
+
+    final void setFilename(String filename) {
+        try {
+            Jenkins.checkGoodName(filename);
+            this.filename = filename;
+        } catch (Failure x) {
+            // Ignore and leave the filename undefined.
+            // FileItem.getName Javadoc claims Opera might pass a full path.
+            // This is a best effort anyway (scripts should be written to tolerate an undefined name).
+        }
     }
 
     protected InputStream open(@CheckForNull Run<?,?> build) throws IOException, InterruptedException {
@@ -93,8 +110,9 @@ public abstract class AbstractFileParameterValue extends ParameterValue {
     
     @Override public void buildEnvironment(Run<?, ?> build, EnvVars env) {
         super.buildEnvironment(build, env);
-        if (filename != null) {
-            env.put(name + "_FILENAME", filename);
+        String fname = getFilename();
+        if (fname != null) {
+            env.put(name + "_FILENAME", fname);
         }
     }
 

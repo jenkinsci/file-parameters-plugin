@@ -25,12 +25,15 @@
 package io.jenkins.plugins.file_parameters;
 
 import hudson.cli.CLICommandInvoker;
+import hudson.model.Failure;
 import hudson.model.ParameterDefinition;
 import hudson.model.ParametersDefinitionProperty;
 import java.io.ByteArrayInputStream;
 import static org.hamcrest.MatcherAssert.assertThat;
 
 import hudson.model.Result;
+import java.io.File;
+import org.apache.commons.io.FileUtils;
 import org.jenkinsci.plugins.workflow.cps.CpsFlowDefinition;
 import org.jenkinsci.plugins.workflow.job.WorkflowJob;
 import org.jenkinsci.plugins.workflow.job.WorkflowRun;
@@ -39,6 +42,7 @@ import org.junit.Test;
 import static org.junit.Assert.*;
 import org.junit.Rule;
 import org.jvnet.hudson.test.BuildWatcher;
+import org.jvnet.hudson.test.Issue;
 import org.jvnet.hudson.test.JenkinsRule;
 
 public class FileParameterWrapperTest {
@@ -206,6 +210,27 @@ public class FileParameterWrapperTest {
         WorkflowRun b = p.getBuildByNumber(2);
         assertNotNull(b);
         r.assertLogContains("loaded 'UPLOADED CONTENT HERE'", b);
+    }
+
+    @Issue("SECURITY-3123")
+    @Test public void stashMaliciousFilename() throws Exception {
+        String hack = "../../../../../../../../../../../../../../../../../../../../../tmp/file-parameters-plugin-SECURITY-3123";
+        File result = new File("/tmp/file-parameters-plugin-SECURITY-3123");
+        FileUtils.deleteQuietly(result);
+        WorkflowJob p = r.createProject(WorkflowJob.class, "p");
+        try {
+            p.addProperty(new ParametersDefinitionProperty(new StashedFileParameterDefinition(hack)));
+        } catch (Failure x) {
+            return; // good
+        }
+        p.setDefinition(new CpsFlowDefinition("", true));
+        assertThat(new CLICommandInvoker(r, "build").
+                       withStdin(new ByteArrayInputStream("malicious content here".getBytes())).
+                       invokeWithArgs("-f", "-p", hack + "=", "p"),
+                   CLICommandInvoker.Matcher.succeeded());
+        WorkflowRun b = p.getBuildByNumber(1);
+        assertNotNull(b);
+        assertFalse(result.isFile());
     }
 
     @Test public void shortParameterName() throws Exception {
