@@ -25,22 +25,32 @@
 package io.jenkins.plugins.file_parameters;
 
 import hudson.cli.CLICommand;
+import hudson.model.Failure;
 import hudson.model.ParameterDefinition;
 import hudson.model.ParameterValue;
+import hudson.util.FormValidation;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Base64;
 import javax.servlet.ServletException;
+import jenkins.model.Jenkins;
 import net.sf.json.JSONObject;
 import org.apache.commons.fileupload.FileItem;
 import org.apache.commons.fileupload.FileUploadBase;
+import org.kohsuke.stapler.QueryParameter;
 import org.kohsuke.stapler.StaplerRequest;
 
 abstract class AbstractFileParameterDefinition extends ParameterDefinition {
 
     protected AbstractFileParameterDefinition(String name) {
         super(name);
+        Jenkins.checkGoodName(name);
+    }
+
+    protected Object readResolve() {
+        Jenkins.checkGoodName(getName());
+        return this;
     }
 
     protected abstract Class<? extends AbstractFileParameterValue> valueType();
@@ -74,7 +84,7 @@ abstract class AbstractFileParameterDefinition extends ParameterDefinition {
             }
             src.delete();
             p.setDescription(getDescription());
-            p.filename = src.getName();
+            p.setFilename(src.getName());
             return p;
         } catch (ServletException | IOException x) {
             throw new RuntimeException(x);
@@ -92,6 +102,19 @@ abstract class AbstractFileParameterDefinition extends ParameterDefinition {
         }
         p.setDescription(getDescription());
         return p;
+    }
+
+    protected static abstract class AbstractFileParameterDefinitionDescriptor extends ParameterDescriptor {
+
+        public FormValidation doCheckName(@QueryParameter String name) {
+            try {
+                Jenkins.checkGoodName(name);
+                return FormValidation.ok();
+            } catch (Failure x) {
+                return FormValidation.error(x.getMessage());
+            }
+        }
+
     }
 
 }

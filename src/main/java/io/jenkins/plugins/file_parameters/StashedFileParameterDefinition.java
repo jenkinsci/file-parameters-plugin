@@ -25,7 +25,6 @@
 package io.jenkins.plugins.file_parameters;
 
 import hudson.Extension;
-import hudson.model.ParameterDefinition;
 import java.io.IOException;
 import java.io.InputStream;
 import org.jenkinsci.Symbol;
@@ -48,7 +47,7 @@ public final class StashedFileParameterDefinition extends AbstractFileParameterD
     // TODO equals/hashCode
 
     @Symbol("stashedFile")
-    @Extension public static final class DescriptorImpl extends ParameterDefinition.ParameterDescriptor {
+    @Extension public static final class DescriptorImpl extends AbstractFileParameterDefinitionDescriptor {
 
         @Override public String getDisplayName() {
             return "Stashed File Parameter";

@@ -51,7 +51,7 @@ public final class StashedFileParameterValue extends AbstractFileParameterValue 
     
     @DataBoundConstructor public StashedFileParameterValue(String name, FileItem file) throws IOException {
         this(name, file.getInputStream());
-        filename = file.getName();
+        setFilename(file.getName());
         file.delete();
     }
 
