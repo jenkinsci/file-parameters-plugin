@@ -24,11 +24,11 @@
 
 package io.jenkins.plugins.file_parameters;
 
-import com.gargoylesoftware.htmlunit.FormEncodingType;
-import com.gargoylesoftware.htmlunit.HttpMethod;
-import com.gargoylesoftware.htmlunit.WebRequest;
-import com.gargoylesoftware.htmlunit.util.KeyDataPair;
-import com.gargoylesoftware.htmlunit.util.NameValuePair;
+import org.htmlunit.FormEncodingType;
+import org.htmlunit.HttpMethod;
+import org.htmlunit.WebRequest;
+import org.htmlunit.util.KeyDataPair;
+import org.htmlunit.util.NameValuePair;
 import hudson.cli.CLICommandInvoker;
 import hudson.model.ParametersDefinitionProperty;
 import java.io.ByteArrayInputStream;
