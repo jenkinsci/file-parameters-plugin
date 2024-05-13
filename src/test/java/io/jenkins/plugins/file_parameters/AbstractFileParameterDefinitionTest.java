@@ -38,6 +38,11 @@ import java.util.Collections;
 import jenkins.model.Jenkins;
 import org.apache.commons.io.FileUtils;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
+import org.htmlunit.html.HtmlFileInput;
+import org.htmlunit.html.HtmlForm;
+import org.htmlunit.html.HtmlPage;
+import org.htmlunit.http.HttpStatus;
 import org.jenkinsci.plugins.workflow.cps.CpsFlowDefinition;
 import org.jenkinsci.plugins.workflow.job.WorkflowJob;
 import org.jenkinsci.plugins.workflow.job.WorkflowRun;
@@ -59,7 +64,28 @@ public class AbstractFileParameterDefinitionTest {
 
     @Rule public TemporaryFolder tmp = new TemporaryFolder();
 
-    // TODO test of GUI upload
+    @Test public void gui() throws Exception {
+        r.jenkins.setSecurityRealm(r.createDummySecurityRealm());
+        r.jenkins.setAuthorizationStrategy(new MockAuthorizationStrategy().grant(Jenkins.ADMINISTER).everywhere().to("admin"));
+        WorkflowJob p = r.createProject(WorkflowJob.class, "myjob");
+        p.addProperty(new ParametersDefinitionProperty(new Base64FileParameterDefinition("FILE")));
+        p.setDefinition(new CpsFlowDefinition("echo(/received $FILE_FILENAME: $FILE/)", true));
+        File f = tmp.newFile("myfile.txt");
+        FileUtils.write(f, "uploaded content here", "UTF-8");
+        JenkinsRule.WebClient wc = r.createWebClient().login("admin");
+        wc.setThrowExceptionOnFailingStatusCode(false);
+        wc.setRedirectEnabled(true);
+        HtmlPage parametersPage = wc.goTo("job/myjob/build?delay=0sec");
+        assertThat(parametersPage.getWebResponse().getStatusCode(), is(HttpStatus.METHOD_NOT_ALLOWED_405));
+        HtmlForm form = parametersPage.getFormByName("parameters");
+        HtmlFileInput file = form.getInputByName("file");
+        file.setValue(f.getAbsolutePath());
+        assertThat(r.submit(form).getWebResponse().getStatusCode(), is(HttpStatus.OK_200)); // 303 myjob/build → myjob/
+        r.waitUntilNoActivity();
+        WorkflowRun b = p.getBuildByNumber(1);
+        assertNotNull(b);
+        r.assertLogContains("received myfile.txt: dXBsb2FkZWQgY29udGVudCBoZXJl", b);
+    }
 
     // adapted from BuildCommandTest.fileParameter
     @Test public void cli() throws Exception {
