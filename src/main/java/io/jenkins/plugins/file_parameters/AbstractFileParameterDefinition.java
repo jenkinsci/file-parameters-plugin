@@ -24,6 +24,7 @@
 
 package io.jenkins.plugins.file_parameters;
 
+import com.google.common.base.Throwables;
 import hudson.cli.CLICommand;
 import hudson.model.Failure;
 import hudson.model.ParameterDefinition;
@@ -69,8 +70,7 @@ abstract class AbstractFileParameterDefinition extends ParameterDefinition {
                 src = req.getFileItem(getName());
             } catch (Exception x) {
                 // TODO simplify when we drop support for Commons FileUpload 1.x
-                String simpleName =
-                        x.getCause() != null ? x.getCause().getClass().getSimpleName() : null;
+                String simpleName = Throwables.getRootCause(x).getClass().getSimpleName();
                 if ("InvalidContentTypeException".equals(simpleName) /* Commons FileUpload 1.x */
                         || "FileUploadContentTypeException".equals(simpleName)) /* Commons FileUpload 2.x */ {
                     src = null;
