@@ -42,7 +42,7 @@ import jenkins.model.Jenkins;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.kohsuke.stapler.AncestorInPath;
-import org.kohsuke.stapler.StaplerResponse;
+import org.kohsuke.stapler.StaplerResponse2;
 
 /**
  * Implement either {@link #open} and/or {@link #createTempFile}.
@@ -99,7 +99,7 @@ public abstract class AbstractFileParameterValue extends ParameterValue {
         return f;
     }
 
-    public void doDownload(@AncestorInPath Run<?,?> build, StaplerResponse rsp) throws Exception {
+    public void doDownload(@AncestorInPath Run<?,?> build, StaplerResponse2 rsp) throws Exception {
         rsp.setContentType("application/octet-stream");
         try (InputStream is = open(build); OutputStream os = rsp.getOutputStream()) {
             IOUtils.copy(is, os);
