@@ -34,12 +34,12 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Base64;
-import javax.servlet.ServletException;
+import jakarta.servlet.ServletException;
 import jenkins.model.Jenkins;
 import net.sf.json.JSONObject;
 import org.apache.commons.fileupload.FileItem;
 import org.kohsuke.stapler.QueryParameter;
-import org.kohsuke.stapler.StaplerRequest;
+import org.kohsuke.stapler.StaplerRequest2;
 
 abstract class AbstractFileParameterDefinition extends ParameterDefinition {
 
@@ -57,13 +57,13 @@ abstract class AbstractFileParameterDefinition extends ParameterDefinition {
 
     protected abstract AbstractFileParameterValue createValue(String name, InputStream src) throws IOException;
 
-    @Override public ParameterValue createValue(StaplerRequest req, JSONObject jo) {
+    @Override public ParameterValue createValue(StaplerRequest2 req, JSONObject jo) {
         AbstractFileParameterValue p = req.bindJSON(valueType(), jo);
         p.setDescription(getDescription());
         return p;
     }
 
-    @Override public ParameterValue createValue(StaplerRequest req) {
+    @Override public ParameterValue createValue(StaplerRequest2 req) {
         try {
             FileItem src;
             try {
