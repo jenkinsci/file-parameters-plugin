@@ -24,7 +24,6 @@
 
 package io.jenkins.plugins.file_parameters;
 
-import com.google.common.base.Throwables;
 import hudson.cli.CLICommand;
 import hudson.model.Failure;
 import hudson.model.ParameterDefinition;
@@ -37,7 +36,8 @@ import java.util.Base64;
 import jakarta.servlet.ServletException;
 import jenkins.model.Jenkins;
 import net.sf.json.JSONObject;
-import org.apache.commons.fileupload.FileItem;
+import org.apache.commons.fileupload2.core.FileItem;
+import org.apache.commons.fileupload2.core.FileUploadContentTypeException;
 import org.kohsuke.stapler.QueryParameter;
 import org.kohsuke.stapler.StaplerRequest2;
 
@@ -67,12 +67,9 @@ abstract class AbstractFileParameterDefinition extends ParameterDefinition {
         try {
             FileItem src;
             try {
-                src = req.getFileItem(getName());
-            } catch (Exception x) {
-                // TODO simplify when we drop support for Commons FileUpload 1.x
-                String simpleName = Throwables.getRootCause(x).getClass().getSimpleName();
-                if ("InvalidContentTypeException".equals(simpleName) /* Commons FileUpload 1.x */
-                        || "FileUploadContentTypeException".equals(simpleName)) /* Commons FileUpload 2.x */ {
+                src = req.getFileItem2(getName());
+            } catch (ServletException x) {
+                if (x.getCause() instanceof FileUploadContentTypeException) {
                     src = null;
                 } else {
                     throw x;
