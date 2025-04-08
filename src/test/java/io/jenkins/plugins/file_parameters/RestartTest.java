@@ -30,20 +30,15 @@ import hudson.model.ParametersDefinitionProperty;
 import hudson.model.Queue;
 import hudson.model.queue.CauseOfBlockage;
 import hudson.model.queue.QueueTaskDispatcher;
-import java.io.File;
-import java.net.URL;
-import java.util.Collections;
 import jenkins.model.Jenkins;
 import org.apache.commons.io.FileUtils;
 import org.htmlunit.FormEncodingType;
 import org.htmlunit.HttpMethod;
 import org.htmlunit.WebRequest;
 import org.htmlunit.util.KeyDataPair;
-import org.htmlunit.util.NameValuePair;
 import org.jenkinsci.plugins.workflow.cps.CpsFlowDefinition;
 import org.jenkinsci.plugins.workflow.job.WorkflowJob;
 import org.jenkinsci.plugins.workflow.job.WorkflowRun;
-import static org.junit.Assert.assertNotNull;
 import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
@@ -53,6 +48,12 @@ import org.jvnet.hudson.test.Issue;
 import org.jvnet.hudson.test.JenkinsSessionRule;
 import org.jvnet.hudson.test.MockAuthorizationStrategy;
 import org.jvnet.hudson.test.TestExtension;
+
+import java.io.File;
+import java.net.URL;
+import java.util.Collections;
+
+import static org.junit.Assert.assertNotNull;
 
 @Issue("JENKINS-73161")
 public final class RestartTest {
@@ -75,7 +76,7 @@ public final class RestartTest {
             File f = tmp.newFile();
             FileUtils.write(f, "uploaded content here", "UTF-8");
             req.setEncodingType(FormEncodingType.MULTIPART);
-            req.setRequestParameters(Collections.<NameValuePair>singletonList(new KeyDataPair("FILE", f, "myfile.txt", "text/plain", "UTF-8")));
+            req.setRequestParameters(Collections.singletonList(new KeyDataPair("FILE", f, "myfile.txt", "text/plain", "UTF-8")));
             r.createWebClient().withBasicApiToken("admin").getPage(req);
         });
         rr.then(r -> {

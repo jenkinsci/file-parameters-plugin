@@ -24,54 +24,54 @@
 
 package io.jenkins.plugins.file_parameters;
 
+import hudson.cli.CLICommandInvoker;
+import hudson.model.ParametersDefinitionProperty;
+import jenkins.model.Jenkins;
+import org.apache.commons.io.FileUtils;
 import org.htmlunit.FormEncodingType;
 import org.htmlunit.HttpMethod;
 import org.htmlunit.WebRequest;
-import org.htmlunit.util.KeyDataPair;
-import org.htmlunit.util.NameValuePair;
-import hudson.cli.CLICommandInvoker;
-import hudson.model.ParametersDefinitionProperty;
-import java.io.ByteArrayInputStream;
-import java.io.File;
-import java.net.URL;
-import java.util.Collections;
-import jenkins.model.Jenkins;
-import org.apache.commons.io.FileUtils;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
 import org.htmlunit.html.HtmlFileInput;
 import org.htmlunit.html.HtmlForm;
 import org.htmlunit.html.HtmlPage;
 import org.htmlunit.http.HttpStatus;
+import org.htmlunit.util.KeyDataPair;
 import org.jenkinsci.plugins.workflow.cps.CpsFlowDefinition;
 import org.jenkinsci.plugins.workflow.job.WorkflowJob;
 import org.jenkinsci.plugins.workflow.job.WorkflowRun;
-import org.junit.ClassRule;
-import org.junit.Test;
-import static org.junit.Assert.*;
-import org.junit.Rule;
-import org.junit.rules.TemporaryFolder;
-import org.jvnet.hudson.test.BuildWatcher;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 import org.jvnet.hudson.test.Issue;
 import org.jvnet.hudson.test.JenkinsRule;
 import org.jvnet.hudson.test.MockAuthorizationStrategy;
+import org.jvnet.hudson.test.junit.jupiter.WithJenkins;
 
-public class AbstractFileParameterDefinitionTest {
+import java.io.ByteArrayInputStream;
+import java.io.File;
+import java.net.URL;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.util.Collections;
 
-    @ClassRule public static BuildWatcher buildWatcher = new BuildWatcher();
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
-    @Rule public JenkinsRule r = new JenkinsRule();
+@WithJenkins
+class AbstractFileParameterDefinitionTest {
 
-    @Rule public TemporaryFolder tmp = new TemporaryFolder();
+    @TempDir
+    private File tmp;
 
-    @Test public void gui() throws Exception {
+    @Test
+    void gui(JenkinsRule r) throws Exception {
         r.jenkins.setSecurityRealm(r.createDummySecurityRealm());
         r.jenkins.setAuthorizationStrategy(new MockAuthorizationStrategy().grant(Jenkins.ADMINISTER).everywhere().to("admin"));
         WorkflowJob p = r.createProject(WorkflowJob.class, "myjob");
         p.addProperty(new ParametersDefinitionProperty(new Base64FileParameterDefinition("FILE")));
         p.setDefinition(new CpsFlowDefinition("echo(/received $FILE_FILENAME: $FILE/)", true));
-        File f = tmp.newFile("myfile.txt");
-        FileUtils.write(f, "uploaded content here", "UTF-8");
+        File f = Files.createFile(new File(tmp, "myfile.txt").toPath()).toFile();
+        FileUtils.write(f, "uploaded content here", StandardCharsets.UTF_8);
         JenkinsRule.WebClient wc = r.createWebClient().login("admin");
         wc.setThrowExceptionOnFailingStatusCode(false);
         wc.setRedirectEnabled(true);
@@ -88,7 +88,8 @@ public class AbstractFileParameterDefinitionTest {
     }
 
     // adapted from BuildCommandTest.fileParameter
-    @Test public void cli() throws Exception {
+    @Test
+    void cli(JenkinsRule r) throws Exception {
         WorkflowJob p = r.createProject(WorkflowJob.class, "myjob");
         p.addProperty(new ParametersDefinitionProperty(new Base64FileParameterDefinition("FILE")));
         p.setDefinition(new CpsFlowDefinition("echo(/received $env.FILE_FILENAME: $FILE/)", true));
@@ -101,7 +102,8 @@ public class AbstractFileParameterDefinitionTest {
         r.assertLogContains("received null: dXBsb2FkZWQgY29udGVudCBoZXJl", b);
     }
 
-    @Test public void rest() throws Exception {
+    @Test
+    void rest(JenkinsRule r) throws Exception {
         r.jenkins.setSecurityRealm(r.createDummySecurityRealm());
         r.jenkins.setAuthorizationStrategy(new MockAuthorizationStrategy().grant(Jenkins.ADMINISTER).everywhere().to("admin"));
         WorkflowJob p = r.createProject(WorkflowJob.class, "myjob");
@@ -109,10 +111,10 @@ public class AbstractFileParameterDefinitionTest {
         p.setDefinition(new CpsFlowDefinition("echo(/received $FILE_FILENAME: $FILE/)", true));
         // Like: curl -u $auth -F FILE=@/tmp/f $jenkins/job/myjob/buildWithParameters
         WebRequest req = new WebRequest(new URL(r.getURL() + "job/myjob/buildWithParameters"), HttpMethod.POST);
-        File f = tmp.newFile();
-        FileUtils.write(f, "uploaded content here", "UTF-8");
+        File f = File.createTempFile("junit", null, tmp);
+        FileUtils.write(f, "uploaded content here", StandardCharsets.UTF_8);
         req.setEncodingType(FormEncodingType.MULTIPART);
-        req.setRequestParameters(Collections.<NameValuePair>singletonList(new KeyDataPair("FILE", f, "myfile.txt", "text/plain", "UTF-8")));
+        req.setRequestParameters(Collections.singletonList(new KeyDataPair("FILE", f, "myfile.txt", "text/plain", StandardCharsets.UTF_8)));
         r.createWebClient().withBasicApiToken("admin").getPage(req);
         r.waitUntilNoActivity();
         WorkflowRun b = p.getBuildByNumber(1);
@@ -121,7 +123,8 @@ public class AbstractFileParameterDefinitionTest {
     }
 
     @Issue("https://github.com/jenkinsci/file-parameters-plugin/issues/26")
-    @Test public void restMissingValue() throws Exception {
+    @Test
+    void restMissingValue(JenkinsRule r) throws Exception {
         r.jenkins.setSecurityRealm(r.createDummySecurityRealm());
         r.jenkins.setAuthorizationStrategy(new MockAuthorizationStrategy().grant(Jenkins.ADMINISTER).everywhere().to("admin"));
         WorkflowJob p = r.createProject(WorkflowJob.class, "myjob");
@@ -136,7 +139,8 @@ public class AbstractFileParameterDefinitionTest {
         r.assertLogContains("received null: null", b);
     }
 
-    @Test public void buildStep() throws Exception {
+    @Test
+    void buildStep(JenkinsRule r) throws Exception {
         WorkflowJob us = r.createProject(WorkflowJob.class, "us");
         us.setDefinition(new CpsFlowDefinition("build job: 'ds', parameters: [base64File(name: 'FILE', base64: Base64.encoder.encodeToString('a message'.bytes))]", true));
         WorkflowJob ds = r.createProject(WorkflowJob.class, "ds");
