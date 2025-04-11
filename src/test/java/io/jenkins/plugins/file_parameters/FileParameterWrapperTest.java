@@ -28,34 +28,39 @@ import hudson.cli.CLICommandInvoker;
 import hudson.model.Failure;
 import hudson.model.ParameterDefinition;
 import hudson.model.ParametersDefinitionProperty;
-import java.io.ByteArrayInputStream;
-import static org.hamcrest.MatcherAssert.assertThat;
-
 import hudson.model.Result;
-import java.io.File;
 import org.apache.commons.io.FileUtils;
 import org.jenkinsci.plugins.workflow.cps.CpsFlowDefinition;
 import org.jenkinsci.plugins.workflow.job.WorkflowJob;
 import org.jenkinsci.plugins.workflow.job.WorkflowRun;
-import org.junit.ClassRule;
-import org.junit.Test;
-import static org.junit.Assert.*;
-import org.junit.Rule;
-import org.jvnet.hudson.test.BuildWatcher;
+import org.junit.jupiter.api.Test;
 import org.jvnet.hudson.test.Issue;
 import org.jvnet.hudson.test.JenkinsRule;
+import org.jvnet.hudson.test.junit.jupiter.WithJenkins;
 
-public class FileParameterWrapperTest {
+import java.io.ByteArrayInputStream;
+import java.io.File;
 
-    @ClassRule public static BuildWatcher buildWatcher = new BuildWatcher();
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
-    @Rule public JenkinsRule r = new JenkinsRule();
+@WithJenkins
+class FileParameterWrapperTest {
 
-    @Test public void base64() throws Exception {
+    @Test
+    void base64(JenkinsRule r) throws Exception {
         r.createSlave("remote", null, null);
         WorkflowJob p = r.createProject(WorkflowJob.class, "myjob");
         p.addProperty(new ParametersDefinitionProperty(new Base64FileParameterDefinition("FILE")));
-        p.setDefinition(new CpsFlowDefinition("node('remote') {withFileParameter('FILE') {echo(/loaded '${readFile(FILE).toUpperCase(Locale.ROOT)}' from $FILE/)}}", true));
+        String pipeline = """
+                node('remote') {
+                  withFileParameter('FILE') {
+                    echo(/loaded '${readFile(FILE).toUpperCase(Locale.ROOT)}' from $FILE/)
+                  }
+                }""";
+        p.setDefinition(new CpsFlowDefinition(pipeline, true));
         assertThat(new CLICommandInvoker(r, "build").
                 withStdin(new ByteArrayInputStream("uploaded content here".getBytes())).
                 invokeWithArgs("-f", "-p", "FILE=", "myjob"),
@@ -65,25 +70,27 @@ public class FileParameterWrapperTest {
         r.assertLogContains("loaded 'UPLOADED CONTENT HERE' from ", b);
     }
 
-    @Test public void base64UndefinedFail() throws Exception {
+    @Test
+    void base64UndefinedFail(JenkinsRule r) throws Exception {
         r.createSlave("remote", null, null);
         WorkflowJob p = r.createProject(WorkflowJob.class, "myjob");
         p.addProperty(new ParametersDefinitionProperty(new Base64FileParameterDefinition("FILE")));
-        String pipeline = "pipeline {\n" +
-            "  agent any\n" +
-            "  parameters {\n" +
-            "    base64File 'FILE'\n" +
-            "  }\n" +
-            "  stages {\n" +
-            "    stage('Example') {\n" +
-            "      steps {\n" +
-            "        withFileParameter('FILE') {\n" +
-            "          echo('foo') \n" +
-            "        }\n" +
-            "      }\n" +
-            "    }\n" +
-            "  }\n" +
-            "}";
+        String pipeline = """
+                pipeline {
+                  agent any
+                  parameters {
+                    base64File 'FILE'
+                  }
+                  stages {
+                    stage('Example') {
+                      steps {
+                        withFileParameter('FILE') {
+                          echo('foo')
+                        }
+                      }
+                    }
+                  }
+                }""";
         p.setDefinition(new CpsFlowDefinition(pipeline, true));
         WorkflowRun run = p.scheduleBuild2(0).get();
         r.waitForCompletion(run);
@@ -91,25 +98,27 @@ public class FileParameterWrapperTest {
         r.assertLogContains("No parameter named FILE", run);
     }
 
-    @Test public void base64WithAllowNoFile() throws Exception {
+    @Test
+    void base64WithAllowNoFile(JenkinsRule r) throws Exception {
         r.createSlave("remote", null, null);
         WorkflowJob p = r.createProject(WorkflowJob.class, "myjob");
         p.addProperty(new ParametersDefinitionProperty(new Base64FileParameterDefinition("FILE")));
-        String pipeline = "pipeline {\n" +
-            "  agent any\n" +
-            "  parameters {\n" +
-            "    base64File 'FILE'\n" +
-            "  }\n" +
-            "  stages {\n" +
-            "    stage('Example') {\n" +
-            "      steps {\n" +
-            "        withFileParameter(name:'FILE', allowNoFile: true) {\n" +
-            "          echo('foo') \n" +
-            "        }\n" +
-            "      }\n" +
-            "    }\n" +
-            "  }\n" +
-            "}";
+        String pipeline = """
+                pipeline {
+                  agent any
+                  parameters {
+                    base64File 'FILE'
+                  }
+                  stages {
+                    stage('Example') {
+                      steps {
+                        withFileParameter(name:'FILE', allowNoFile: true) {
+                          echo('foo')
+                        }
+                      }
+                    }
+                  }
+                }""";
         p.setDefinition(new CpsFlowDefinition(pipeline, true));
         WorkflowRun run = p.scheduleBuild2(0).get();
         r.waitForCompletion(run);
@@ -118,25 +127,27 @@ public class FileParameterWrapperTest {
         r.assertLogContains("Skip file parameter as there is no parameter with name: 'FILE'", run);
     }
 
-    @Test public void base64DeclarativeParameterCreated() throws Exception {
+    @Test
+    void base64DeclarativeParameterCreated(JenkinsRule r) throws Exception {
         r.createSlave("remote", null, null);
         WorkflowJob p = r.createProject(WorkflowJob.class, "myjob");
 
-        String pipeline = "pipeline {\n" +
-            "  agent any\n" +
-            "  parameters {\n" +
-            "    base64File 'FILE'\n" +
-            "  }\n" +
-            "  stages {\n" +
-            "    stage('Example') {\n" +
-            "      steps {\n" +
-            "        withFileParameter('FILE') {\n" +
-            "          echo(/loaded '${readFile(FILE).toUpperCase(Locale.ROOT)}' from $FILE/) \n" +
-            "        }\n" +
-            "      }\n" +
-            "    }\n" +
-            "  }\n" +
-            "}";
+        String pipeline = """
+                pipeline {
+                  agent any
+                  parameters {
+                    base64File 'FILE'
+                  }
+                  stages {
+                    stage('Example') {
+                      steps {
+                        withFileParameter('FILE') {
+                          echo(/loaded '${readFile(FILE).toUpperCase(Locale.ROOT)}' from $FILE/)
+                        }
+                      }
+                    }
+                  }
+                }""";
 
         p.setDefinition(new CpsFlowDefinition(pipeline, true));
         WorkflowRun run = p.scheduleBuild2(0).get();
@@ -144,10 +155,10 @@ public class FileParameterWrapperTest {
         // definitely will fail but we just ensure parameter has been created
         r.assertBuildStatus(Result.FAILURE, run);
         ParametersDefinitionProperty pdp = p.getProperty(ParametersDefinitionProperty.class);
-        assertNotNull("parameters definition property is null", pdp);
+        assertNotNull(pdp, "parameters definition property is null");
         ParameterDefinition pd = pdp.getParameterDefinition( "FILE");
-        assertNotNull("parameters definition is null", pd);
-        assertEquals("parameter not type Base64FileParameterDefinition", Base64FileParameterDefinition.class, pd.getClass());
+        assertNotNull(pd, "parameters definition is null");
+        assertEquals(Base64FileParameterDefinition.class, pd.getClass(), "parameter not type Base64FileParameterDefinition");
 
         assertThat(new CLICommandInvoker(r, "build").
                        withStdin(new ByteArrayInputStream("uploaded content here".getBytes())).
@@ -158,11 +169,18 @@ public class FileParameterWrapperTest {
         r.assertLogContains("loaded 'UPLOADED CONTENT HERE'", b);
     }
 
-    @Test public void stashed() throws Exception {
+    @Test
+    void stashed(JenkinsRule r) throws Exception {
         r.createSlave("remote", null, null);
         WorkflowJob p = r.createProject(WorkflowJob.class, "myjob");
         p.addProperty(new ParametersDefinitionProperty(new StashedFileParameterDefinition("FILE")));
-        p.setDefinition(new CpsFlowDefinition("node('remote') {withFileParameter('FILE') {echo(/loaded '${readFile(FILE).toUpperCase(Locale.ROOT)}' from $FILE/)}}", true));
+        String pipeline = """
+                node('remote') {
+                  withFileParameter('FILE') {
+                    echo(/loaded '${readFile(FILE).toUpperCase(Locale.ROOT)}' from $FILE/)
+                  }
+                }""";
+        p.setDefinition(new CpsFlowDefinition(pipeline, true));
         assertThat(new CLICommandInvoker(r, "build").
                        withStdin(new ByteArrayInputStream("uploaded content here".getBytes())).
                        invokeWithArgs("-f", "-p", "FILE=", "myjob"),
@@ -172,25 +190,27 @@ public class FileParameterWrapperTest {
         r.assertLogContains("loaded 'UPLOADED CONTENT HERE'", b);
     }
 
-    @Test public void stashedDeclarativeParameterCreated() throws Exception {
+    @Test
+    void stashedDeclarativeParameterCreated(JenkinsRule r) throws Exception {
         r.createSlave("remote", null, null);
         WorkflowJob p = r.createProject(WorkflowJob.class, "myjob");
 
-        String pipeline = "pipeline {\n" +
-            "    agent any\n" +
-            "    parameters {\n" +
-            "        stashedFile 'FILE'\n" +
-            "    }\n" +
-            "    stages {\n" +
-            "        stage('Example') {\n" +
-            "            steps {\n" +
-            "                withFileParameter('FILE') {\n" +
-            "                    echo(/loaded '${readFile(FILE).toUpperCase(Locale.ROOT)}'/)\n" +
-            "                }\n" +
-            "            }\n" +
-            "        }\n" +
-            "    }\n" +
-            "}";
+        String pipeline = """
+                pipeline {
+                    agent any
+                    parameters {
+                        stashedFile 'FILE'
+                    }
+                    stages {
+                        stage('Example') {
+                            steps {
+                                withFileParameter('FILE') {
+                                    echo(/loaded '${readFile(FILE).toUpperCase(Locale.ROOT)}'/)
+                                }
+                            }
+                        }
+                    }
+                }""";
 
         p.setDefinition(new CpsFlowDefinition(pipeline, true));
         WorkflowRun run = p.scheduleBuild2(0).get();
@@ -198,10 +218,10 @@ public class FileParameterWrapperTest {
         // definitely will fail but we just ensure parameter has been created
         r.assertBuildStatus(Result.FAILURE, run);
         ParametersDefinitionProperty pdp = p.getProperty(ParametersDefinitionProperty.class);
-        assertNotNull("parameters definition property is null", pdp);
+        assertNotNull(pdp, "parameters definition property is null");
         ParameterDefinition pd = pdp.getParameterDefinition("FILE");
-        assertNotNull("parameters definition is null", pd);
-        assertEquals("parameter not type Base64FileParameterDefinition", StashedFileParameterDefinition.class, pd.getClass());
+        assertNotNull(pd, "parameters definition is null");
+        assertEquals(StashedFileParameterDefinition.class, pd.getClass(), "parameter not type Base64FileParameterDefinition");
 
         assertThat(new CLICommandInvoker(r, "build").
                        withStdin(new ByteArrayInputStream("uploaded content here".getBytes())).
@@ -213,7 +233,8 @@ public class FileParameterWrapperTest {
     }
 
     @Issue("SECURITY-3123")
-    @Test public void stashMaliciousFilename() throws Exception {
+    @Test
+    void stashMaliciousFilename(JenkinsRule r) throws Exception {
         String hack = "../../../../../../../../../../../../../../../../../../../../../tmp/file-parameters-plugin-SECURITY-3123";
         File result = new File("/tmp/file-parameters-plugin-SECURITY-3123");
         FileUtils.deleteQuietly(result);
@@ -233,11 +254,18 @@ public class FileParameterWrapperTest {
         assertFalse(result.isFile());
     }
 
-    @Test public void shortParameterName() throws Exception {
+    @Test
+    void shortParameterName(JenkinsRule r) throws Exception {
         r.createSlave("remote", null, null);
         WorkflowJob p = r.createProject(WorkflowJob.class, "p");
         p.addProperty(new ParametersDefinitionProperty(new Base64FileParameterDefinition("F")));
-        p.setDefinition(new CpsFlowDefinition("node('remote') {withFileParameter('F') {echo(/loaded '${readFile(F).toUpperCase(Locale.ROOT)}' from $F/)}}", true));
+        String pipeline = """
+                node('remote') {
+                  withFileParameter('F') {
+                    echo(/loaded '${readFile(F).toUpperCase(Locale.ROOT)}' from $F/)
+                  }
+                }""";
+        p.setDefinition(new CpsFlowDefinition(pipeline, true));
         assertThat(new CLICommandInvoker(r, "build").
                 withStdin(new ByteArrayInputStream("uploaded content here".getBytes())).
                 invokeWithArgs("-f", "-p", "F=", "p"),
