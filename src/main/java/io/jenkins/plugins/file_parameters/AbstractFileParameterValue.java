@@ -40,7 +40,6 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import jenkins.model.Jenkins;
 import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang.StringUtils;
 import org.kohsuke.stapler.AncestorInPath;
 import org.kohsuke.stapler.StaplerResponse2;
 
@@ -92,7 +91,7 @@ public abstract class AbstractFileParameterValue extends ParameterValue {
 
     protected FilePath createTempFile(@NonNull Run<?,?> build, @NonNull FilePath tempDir, @NonNull EnvVars env, @NonNull Launcher launcher, @NonNull TaskListener listener) throws IOException, InterruptedException {
         assert Util.isOverridden(AbstractFileParameterValue.class, getClass(), "open", Run.class);
-        FilePath f = tempDir.createTempFile(StringUtils.rightPad(name, 3, 'x'), null);
+        FilePath f = tempDir.createTempFile(name.length() >= 3 ? name : "fileparam", null);
         try (InputStream is = open(build)) {
             f.copyFrom(is);
         }
