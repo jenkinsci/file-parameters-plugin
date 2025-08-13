@@ -39,33 +39,36 @@ import org.htmlunit.util.KeyDataPair;
 import org.jenkinsci.plugins.workflow.cps.CpsFlowDefinition;
 import org.jenkinsci.plugins.workflow.job.WorkflowJob;
 import org.jenkinsci.plugins.workflow.job.WorkflowRun;
-import org.junit.ClassRule;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
-import org.jvnet.hudson.test.BuildWatcher;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
+import org.junit.jupiter.api.io.TempDir;
 import org.jvnet.hudson.test.Issue;
-import org.jvnet.hudson.test.JenkinsSessionRule;
 import org.jvnet.hudson.test.MockAuthorizationStrategy;
 import org.jvnet.hudson.test.TestExtension;
+import org.jvnet.hudson.test.junit.jupiter.BuildWatcherExtension;
+import org.jvnet.hudson.test.junit.jupiter.JenkinsSessionExtension;
 
 import java.io.File;
 import java.net.URL;
 import java.util.Collections;
 
-import static org.junit.Assert.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 @Issue("JENKINS-73161")
-public final class RestartTest {
+class RestartTest {
 
-    @ClassRule public static BuildWatcher buildWatcher = new BuildWatcher();
+    @SuppressWarnings("unused")
+    private static final BuildWatcherExtension BUILD_WATCHER = new BuildWatcherExtension();
 
-    @Rule public final JenkinsSessionRule rr = new JenkinsSessionRule();
+    @RegisterExtension
+    private final JenkinsSessionExtension rr = new JenkinsSessionExtension();
 
-    @Rule public TemporaryFolder tmp = new TemporaryFolder();
+    @TempDir
+    private File tmp;
 
     /** @see AbstractFileParameterDefinitionTest#rest */
-    @Test public void restBase64() throws Throwable {
+    @Test
+    void restBase64() throws Throwable {
         rr.then(r -> {
             r.jenkins.setSecurityRealm(r.createDummySecurityRealm());
             r.jenkins.setAuthorizationStrategy(new MockAuthorizationStrategy().grant(Jenkins.ADMINISTER).everywhere().to("admin"));
@@ -73,7 +76,7 @@ public final class RestartTest {
             p.addProperty(new ParametersDefinitionProperty(new Base64FileParameterDefinition("FILE")));
             p.setDefinition(new CpsFlowDefinition("echo(/received $FILE_FILENAME: $FILE/)", true));
             WebRequest req = new WebRequest(new URL(r.getURL() + "job/p/buildWithParameters"), HttpMethod.POST);
-            File f = tmp.newFile();
+            File f = File.createTempFile("junit", null, tmp);
             FileUtils.write(f, "uploaded content here", "UTF-8");
             req.setEncodingType(FormEncodingType.MULTIPART);
             req.setRequestParameters(Collections.singletonList(new KeyDataPair("FILE", f, "myfile.txt", "text/plain", "UTF-8")));
@@ -88,9 +91,12 @@ public final class RestartTest {
             r.assertLogContains("received myfile.txt: dXBsb2FkZWQgY29udGVudCBoZXJl", b);
         });
     }
-    @TestExtension("restBase64") public static final class Block extends QueueTaskDispatcher {
-        boolean ready;
-        @Override public CauseOfBlockage canTake(Node node, Queue.BuildableItem item) {
+
+    @TestExtension("restBase64")
+    public static final class Block extends QueueTaskDispatcher {
+        private boolean ready;
+        @Override
+        public CauseOfBlockage canTake(Node node, Queue.BuildableItem item) {
             return ready ? null : new CauseOfBlockage.BecauseNodeIsBusy(node);
         }
     }
