@@ -36,7 +36,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
 
-import org.apache.commons.fileupload.FileItem;
+import org.apache.commons.fileupload2.core.FileItem;
 import org.apache.commons.io.FileUtils;
 import org.jenkinsci.plugins.workflow.flow.FlowExecutionOwner;
 import org.jenkinsci.plugins.workflow.flow.StashManager;
