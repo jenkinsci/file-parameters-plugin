@@ -28,6 +28,7 @@ import hudson.ExtensionList;
 import hudson.model.Node;
 import hudson.model.ParametersDefinitionProperty;
 import hudson.model.Queue;
+import hudson.model.Result;
 import hudson.model.queue.CauseOfBlockage;
 import hudson.model.queue.QueueTaskDispatcher;
 import jenkins.model.Jenkins;
@@ -92,7 +93,32 @@ class RestartTest {
         });
     }
 
-    @TestExtension("restBase64")
+    @Test
+    void stashedFileIsRetained() throws Throwable {
+        rr.then(r -> {
+            r.jenkins.setSecurityRealm(r.createDummySecurityRealm());
+            r.jenkins.setAuthorizationStrategy(new MockAuthorizationStrategy().grant(Jenkins.ADMINISTER).everywhere().to("admin"));
+            WorkflowJob p = r.createProject(WorkflowJob.class, "p");
+            p.addProperty(new ParametersDefinitionProperty(new StashedFileParameterDefinition("FILE")));
+            p.setDefinition(new CpsFlowDefinition("node { unstash 'FILE' }", true));
+            WebRequest req = new WebRequest(new URL(r.getURL() + "job/p/buildWithParameters"), HttpMethod.POST);
+            File f = File.createTempFile("junit", null, tmp);
+            FileUtils.write(f, "uploaded content here", "UTF-8");
+            req.setEncodingType(FormEncodingType.MULTIPART);
+            req.setRequestParameters(Collections.singletonList(new KeyDataPair("FILE", f, "myfile.txt", "text/plain", "UTF-8")));
+            r.createWebClient().withBasicApiToken("admin").getPage(req);
+        });
+        rr.then(r -> {
+            ExtensionList.lookupSingleton(Block.class).ready = true;
+            WorkflowJob p = r.jenkins.getItemByFullName("p", WorkflowJob.class);
+            r.waitUntilNoActivity();
+            WorkflowRun b = p.getBuildByNumber(1);
+            assertNotNull(b);
+            assert(b.getResult().isBetterOrEqualTo(Result.SUCCESS));
+        });
+    }
+
+    @TestExtension({"restBase64", "stashedFileIsRetained"})
     public static final class Block extends QueueTaskDispatcher {
         private boolean ready;
         @Override
