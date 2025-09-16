@@ -56,8 +56,6 @@ public final class StashedFileParameterValue extends AbstractFileParameterValue 
 
     private final String tmpFile;
 
-    @SuppressFBWarnings(value = "SE_TRANSIENT_FIELD_NOT_RESTORED", justification = "Doesn't make sense to persist it")
-
     @DataBoundConstructor public StashedFileParameterValue(String name, FileItem file) throws IOException {
         this(name, file.getInputStream());
         setFilename(file.getName());
