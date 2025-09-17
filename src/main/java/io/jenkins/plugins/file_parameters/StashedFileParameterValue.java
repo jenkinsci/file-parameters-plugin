@@ -38,6 +38,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 
+import java.nio.file.FileAlreadyExistsException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
@@ -66,8 +67,9 @@ public final class StashedFileParameterValue extends AbstractFileParameterValue 
 
     StashedFileParameterValue(String name, InputStream src) throws IOException {
         super(name);
-        Path dir = Util.createDirectories(Util.fileToPath(new File(Jenkins.get().getRootDir(), "stashedFileParameterValueFiles")));
-        File tmpDir = Files.createTempDirectory(dir, null).toFile();
+        File dir = new File(Jenkins.get().getRootDir(), "stashedFileParameterValueFiles");
+        Files.createDirectories(dir.toPath());
+        File tmpDir = Files.createTempDirectory(dir.toPath(), null).toFile();
         File tmp = new File(tmpDir, name);
         FileUtils.copyInputStreamToFile(src, tmp);
         tmpFile = tmp.getAbsolutePath();
