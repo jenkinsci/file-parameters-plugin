@@ -38,9 +38,12 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import jenkins.model.Jenkins;
 import org.apache.commons.fileupload.FileItem;
 import org.apache.commons.io.FileUtils;
 import org.jenkinsci.plugins.workflow.flow.FlowExecutionOwner;
@@ -53,7 +56,7 @@ public final class StashedFileParameterValue extends AbstractFileParameterValue 
 
     private static final long serialVersionUID = 1L;
 
-    private final String tmpFile;
+    private String tmpFile;
 
     @DataBoundConstructor public StashedFileParameterValue(String name, FileItem file) throws IOException {
         this(name, file.getInputStream());
@@ -63,7 +66,9 @@ public final class StashedFileParameterValue extends AbstractFileParameterValue 
 
     StashedFileParameterValue(String name, InputStream src) throws IOException {
         super(name);
-        File tmp = new File(Util.createTempDir(), name);
+        Path dir = Util.createDirectories(Util.fileToPath(new File(Jenkins.get().getRootDir(), "stashedFileParameterValueFiles")));
+        File tmpDir = Files.createTempDirectory(dir, null).toFile();
+        File tmp = new File(tmpDir, name);
         FileUtils.copyInputStreamToFile(src, tmp);
         tmpFile = tmp.getAbsolutePath();
     }
@@ -83,6 +88,7 @@ public final class StashedFileParameterValue extends AbstractFileParameterValue 
             }
             try {
                 FileUtils.deleteDirectory(tmp.getParentFile());
+                tmpFile = null;
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
