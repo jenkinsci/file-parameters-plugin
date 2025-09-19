@@ -34,6 +34,7 @@ import hudson.model.Failure;
 import hudson.model.ParameterValue;
 import hudson.model.Run;
 import hudson.model.TaskListener;
+import java.io.File;
 import java.io.FilterInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -59,14 +60,9 @@ public abstract class AbstractFileParameterValue extends ParameterValue {
     }
 
     final void setFilename(String filename) {
-        try {
-            Jenkins.checkGoodName(filename);
-            this.filename = filename;
-        } catch (Failure x) {
-            // Ignore and leave the filename undefined.
-            // FileItem.getName Javadoc claims Opera might pass a full path.
-            // This is a best effort anyway (scripts should be written to tolerate an undefined name).
-        }
+        // FileItem.getName Javadoc claims Opera might pass a full path, so strip to just the name.
+        // This is a best effort anyway (scripts should be written to tolerate an undefined name).
+        this.filename = new File(filename).getName();
     }
 
     protected InputStream open(@CheckForNull Run<?,?> build) throws IOException, InterruptedException {
