@@ -24,18 +24,23 @@
 
 package io.jenkins.plugins.file_parameters;
 
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import hudson.EnvVars;
+import hudson.Extension;
 import hudson.FilePath;
 import hudson.Launcher;
-import hudson.Util;
+import hudson.model.ParametersAction;
+import hudson.model.Queue;
 import hudson.model.Run;
 import hudson.model.TaskListener;
+import hudson.model.queue.QueueListener;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
-
+import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import jenkins.model.Jenkins;
 import org.apache.commons.fileupload2.core.FileItem;
 import org.apache.commons.io.FileUtils;
 import org.jenkinsci.plugins.workflow.flow.FlowExecutionOwner;
@@ -44,11 +49,12 @@ import org.kohsuke.stapler.DataBoundConstructor;
 
 public final class StashedFileParameterValue extends AbstractFileParameterValue {
 
+    private static final Logger LOGGER = Logger.getLogger(StashedFileParameterValue.class.getName());
+
     private static final long serialVersionUID = 1L;
 
-    @SuppressFBWarnings(value = "SE_TRANSIENT_FIELD_NOT_RESTORED", justification = "Doesn't make sense to persist it")
-    private transient File tmp;
-    
+    private String tmpFile;
+
     @DataBoundConstructor public StashedFileParameterValue(String name, FileItem file) throws IOException {
         this(name, file.getInputStream());
         setFilename(file.getName());
@@ -57,14 +63,18 @@ public final class StashedFileParameterValue extends AbstractFileParameterValue 
 
     StashedFileParameterValue(String name, InputStream src) throws IOException {
         super(name);
-        tmp = new File(Util.createTempDir(), name);
-        tmp.deleteOnExit();
+        File dir = new File(Jenkins.get().getRootDir(), "stashedFileParameterValueFiles");
+        Files.createDirectories(dir.toPath());
+        File tmpDir = Files.createTempDirectory(dir.toPath(), null).toFile();
+        File tmp = new File(tmpDir, name);
         FileUtils.copyInputStreamToFile(src, tmp);
+        tmpFile = tmp.getAbsolutePath();
     }
 
     @Override public void buildEnvironment(Run<?, ?> build, EnvVars env) {
         super.buildEnvironment(build, env);
-        if (tmp != null) {
+        File tmp = tmpFile != null ? new File(tmpFile) : null;
+        if (tmp != null && tmp.isFile()) {
             try {
                 FlowExecutionOwner feo = build instanceof FlowExecutionOwner.Executable ? ((FlowExecutionOwner.Executable) build).asFlowExecutionOwner() : null;
                 TaskListener listener = feo != null ? feo.getListener() : TaskListener.NULL;
@@ -75,8 +85,8 @@ public final class StashedFileParameterValue extends AbstractFileParameterValue 
                 throw new RuntimeException( x );
             }
             try {
-                Files.deleteIfExists(tmp.toPath());
-                tmp = null;
+                FileUtils.deleteDirectory(tmp.getParentFile());
+                tmpFile = null;
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
@@ -88,4 +98,30 @@ public final class StashedFileParameterValue extends AbstractFileParameterValue 
         return tempDir.child(name);
     }
 
+    @Extension
+    public static class CancelledQueueListener extends QueueListener {
+
+        @Override
+        public void onLeft(Queue.LeftItem li) {
+            if (li.isCancelled()) {
+                List<ParametersAction> actions = li.getActions(ParametersAction.class);
+                actions.forEach(a -> {
+                    a.getAllParameters().stream()
+                            .filter(p -> p instanceof StashedFileParameterValue)
+                            .map(p -> (StashedFileParameterValue) p)
+                            .forEach(p -> {
+                                if (p.tmpFile != null) {
+                                    File tmp = new File(p.tmpFile);
+                                    try {
+                                        FileUtils.deleteDirectory(tmp.getParentFile());
+                                    } catch (IOException | IllegalArgumentException e) {
+                                        LOGGER.log(Level.WARNING, "Unable to delete temporary file {0} for parameter {1} of task {2}",
+                                                new Object[]{tmp.getAbsolutePath(), p.getName(), li.task.getName()});
+                                    }
+                                }
+                            });
+                });
+            }
+        }
+    }
 }
