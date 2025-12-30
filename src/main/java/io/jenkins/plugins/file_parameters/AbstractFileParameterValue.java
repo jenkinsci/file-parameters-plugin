@@ -104,7 +104,6 @@ public abstract class AbstractFileParameterValue extends ParameterValue {
     // TODO equals/hashCode
     
     @Override public void buildEnvironment(Run<?, ?> build, EnvVars env) {
-        super.buildEnvironment(build, env);
         String fname = getFilename();
         if (fname != null) {
             env.put(name + "_FILENAME", fname);
