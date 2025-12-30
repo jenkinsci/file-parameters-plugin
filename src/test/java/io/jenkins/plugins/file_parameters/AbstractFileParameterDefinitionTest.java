@@ -25,7 +25,11 @@
 package io.jenkins.plugins.file_parameters;
 
 import hudson.cli.CLICommandInvoker;
+import hudson.model.FreeStyleBuild;
+import hudson.model.FreeStyleProject;
+import hudson.model.ParametersAction;
 import hudson.model.ParametersDefinitionProperty;
+import hudson.tasks.Shell;
 import jenkins.model.Jenkins;
 import org.apache.commons.io.FileUtils;
 import org.htmlunit.FormEncodingType;
@@ -54,6 +58,7 @@ import java.nio.file.Files;
 import java.util.Collections;
 
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
@@ -150,6 +155,22 @@ class AbstractFileParameterDefinitionTest {
         WorkflowRun b = ds.getBuildByNumber(1);
         assertNotNull(b);
         r.assertLogContains("got a message", b);
+    }
+
+    @Issue("https://github.com/jenkinsci/file-parameters-plugin/issues/116")
+    @Test
+    void freestyleWithShellStep(JenkinsRule r) throws Exception {
+        FreeStyleProject project = r.createFreeStyleProject("test-base64-freestyle");
+        project.addProperty(new ParametersDefinitionProperty(new Base64FileParameterDefinition("FILE")));
+        project.getBuildersList().add(new Shell("echo \"FILE=$FILE\""));
+
+        Base64FileParameterValue paramValue = new Base64FileParameterValue("FILE");
+        paramValue.setBase64("amVua2lucwo=");
+
+        FreeStyleBuild build = project.scheduleBuild2(0, new ParametersAction(paramValue)).get();
+
+        r.assertBuildStatusSuccess(build);
+        r.assertLogContains("FILE=amVua2lucwo=", build);
     }
 
 }
