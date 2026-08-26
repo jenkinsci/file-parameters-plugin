@@ -66,7 +66,7 @@ public final class StashedFileParameterValue extends AbstractFileParameterValue 
         File dir = new File(Jenkins.get().getRootDir(), "stashedFileParameterValueFiles");
         Files.createDirectories(dir.toPath());
         File tmpDir = Files.createTempDirectory(dir.toPath(), null).toFile();
-        File tmp = new File(tmpDir, name);
+        File tmp = new File(tmpDir, safeName());
         FileUtils.copyInputStreamToFile(src, tmp);
         tmpFile = tmp.getAbsolutePath();
     }
@@ -95,7 +95,7 @@ public final class StashedFileParameterValue extends AbstractFileParameterValue 
 
     @Override protected FilePath createTempFile(Run<?, ?> build, FilePath tempDir, EnvVars env, Launcher launcher, TaskListener listener) throws IOException, InterruptedException {
         StashManager.unstash(build, name, tempDir, launcher, env, listener);
-        return tempDir.child(name);
+        return tempDir.child(safeName());
     }
 
     @Extension

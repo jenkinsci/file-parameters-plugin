@@ -39,6 +39,7 @@ import java.io.FilterInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.regex.Pattern;
 import jenkins.model.Jenkins;
 import org.apache.commons.io.IOUtils;
 import org.kohsuke.stapler.AncestorInPath;
@@ -87,11 +88,25 @@ public abstract class AbstractFileParameterValue extends ParameterValue {
 
     protected FilePath createTempFile(@NonNull Run<?,?> build, @NonNull FilePath tempDir, @NonNull EnvVars env, @NonNull Launcher launcher, @NonNull TaskListener listener) throws IOException, InterruptedException {
         assert Util.isOverridden(AbstractFileParameterValue.class, getClass(), "open", Run.class);
-        FilePath f = tempDir.createTempFile(name.length() >= 3 ? name : "fileparam", null);
+        FilePath f = tempDir.createTempFile(safeName(), null);
         try (InputStream is = open(build)) {
             f.copyFrom(is);
         }
         return f;
+    }
+
+    private static final Pattern SAFE_NAME = Pattern.compile("[A-Za-z][A-Za-z0-9._-]{2,50}");
+
+    /**
+     * {@link #name} if it is clearly safe to use as a filename in a temp dir on the controller.
+     */
+    protected String safeName() {
+        if (SAFE_NAME.matcher(name).matches()) {
+            return name;
+        } else {
+            return "fileparam";
+        }
+
     }
 
     public void doDownload(@AncestorInPath Run<?,?> build, StaplerResponse2 rsp) throws Exception {
