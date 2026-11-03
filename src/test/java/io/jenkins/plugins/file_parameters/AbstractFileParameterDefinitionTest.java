@@ -145,6 +145,22 @@ class AbstractFileParameterDefinitionTest {
     }
 
     @Test
+    void restGetRequestNullContentType(JenkinsRule r) throws Exception {
+        r.jenkins.setSecurityRealm(r.createDummySecurityRealm());
+        r.jenkins.setAuthorizationStrategy(new MockAuthorizationStrategy().grant(Jenkins.ADMINISTER).everywhere().to("admin"));
+        WorkflowJob p = r.createProject(WorkflowJob.class, "myjob");
+        p.addProperty(new ParametersDefinitionProperty(new Base64FileParameterDefinition("FILE")));
+        p.setDefinition(new CpsFlowDefinition("echo 'ok'", true));
+        // GET request has null content type, simulating what build-with-parameters plugin does
+        // when rendering the parameter form via /parambuild/
+        WebRequest req = new WebRequest(new URL(r.getURL() + "job/myjob/buildWithParameters"), HttpMethod.GET);
+        JenkinsRule.WebClient wc = r.createWebClient().withBasicApiToken("admin");
+        wc.setThrowExceptionOnFailingStatusCode(false);
+        wc.getPage(req);
+        // Should not throw NPE; createValue should return null for null content type
+    }
+
+    @Test
     void buildStep(JenkinsRule r) throws Exception {
         WorkflowJob us = r.createProject(WorkflowJob.class, "us");
         us.setDefinition(new CpsFlowDefinition("build job: 'ds', parameters: [base64File(name: 'FILE', base64: Base64.encoder.encodeToString('a message'.bytes))]", true));

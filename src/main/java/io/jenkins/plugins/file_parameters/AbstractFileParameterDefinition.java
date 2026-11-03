@@ -64,6 +64,9 @@ abstract class AbstractFileParameterDefinition extends ParameterDefinition {
     }
 
     @Override public ParameterValue createValue(StaplerRequest2 req) {
+        if (req.getContentType() == null) {
+            return null;
+        }
         try {
             FileItem src;
             try {
