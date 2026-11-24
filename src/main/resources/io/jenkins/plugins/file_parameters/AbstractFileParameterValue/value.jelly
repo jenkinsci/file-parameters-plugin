@@ -30,6 +30,8 @@ THE SOFTWARE.
         <j:invokeStatic var="encodedName" className="hudson.Util" method="rawEncode">
             <j:arg value="${it.name}"/>
         </j:invokeStatic>
-        <a href="parameter/${encodedName}/download">${%download} <j:if test="${it.filename != null}"><code>${it.filename}</code></j:if></a>
+        <!-- The value is not always shown on the Parameters page, so link to that page from the build when it is known -->
+        <j:set var="parametersUrl" value="${build != null ? rootURL + '/' + build.url + 'parameters/' : ''}"/>
+        <a href="${parametersUrl}parameter/${encodedName}/download">${%download} <j:if test="${it.filename != null}"><code>${it.filename}</code></j:if></a>
     </f:entry>
 </j:jelly>
